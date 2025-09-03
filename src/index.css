@@ -13,7 +13,7 @@
 .primary-header {
   font-size: 2.5rem;      /* Large, attention-grabbing */
   font-weight: 800;       /* Extra Bold for impact */
-  color: var(--green-bright);
+  color: var(--green-dark);
   line-height: 1.2;
   margin: 1rem 0;
   letter-spacing: 0.5px;
@@ -121,4 +121,44 @@
   color: white;
   box-shadow: 0 6px 8px rgba(29, 178, 51, 0.4);
   transform: translateY(-2px) scale(1.05); /* subtle lift and scale */
+}
+
+
+/* Container */
+.textarea-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  margin: 16px 0;
+}
+
+/* Label */
+.textarea-label {
+  font-size: 0.95rem;
+  color: #aaa;
+  font-weight: 500;
+}
+
+/* Textarea */
+.modern-textarea {
+  width: 100%;
+  height: 90%;
+  padding: 10px 16px;
+  font-size: 1rem;
+  color: #222;
+  background: #fff;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  resize: vertical;
+  line-height: normal;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+/* Focus effect */
+.modern-textarea:focus {
+  outline: none;
+  border-color: var(--green-medium);
+  box-shadow: 0 0 0 4px rgba(29, 178, 51, 0.1);
 }

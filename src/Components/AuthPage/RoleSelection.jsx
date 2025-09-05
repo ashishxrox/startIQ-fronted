@@ -45,7 +45,9 @@ const RoleSelection = () => {
               />
               <div className="relative z-10 flex flex-col items-center text-center">
                 <div className="mb-6 primary-header group-hover:text-[#fff]" >{option.icon}</div>
-                <h2 className=" font-bold mb-3 secondary-header  group-hover:text-[#fff]">{option.title}</h2>
+                <h2 className=" font-bold mb-3 secondary-header  group-hover:text-[#fff]"
+                style={{color:"var(--gradient-end)", textShadow:"2px 2px 2px #808080"}}
+                >{option.title}</h2>
                 <p className=" opacity-90 tertiary-header">{option.description}</p>
               </div>
             </motion.div>

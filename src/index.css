@@ -1,21 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --green-bright: #1DB233;
-  --green-dark: #004025;
-  --green-medium: #107838;
-  --yellow-bright: #FFE523;
-  --yellow-medium: #FFD500;
+  --gradient-start: #FF6A6A;   /* coral/red */
+  --gradient-mid1: #FF77DD;   /* pink */
+  --gradient-mid2: #A375FF;   /* purple */
+  --gradient-end: #5AC8FA;    /* light blue */
 }
+
 
 
 /* Primary Header - H1 */
 .primary-header {
   font-size: 2.5rem;      /* Large, attention-grabbing */
   font-weight: 800;       /* Extra Bold for impact */
-  color: var(--green-dark);
   line-height: 1.2;
   margin: 1rem 0;
+  color: #000;
   letter-spacing: 0.5px;
 }
 
@@ -23,7 +23,6 @@
 .secondary-header {
   font-size: 2rem;        /* Slightly smaller */
   font-weight: 700;       /* Bold */
-  color: var(--green-medium);
   line-height: 1.3;
   margin: 0.75rem 0;
   letter-spacing: 0.3px;
@@ -33,9 +32,9 @@
 .tertiary-header {
   font-size: 1.5rem;      /* Medium size */
   font-weight: 600;       /* Semi-bold */
-  color: var(--green-dark);
   line-height: 1.4;
   margin: 0.5rem 0;
+  color: #000;
   letter-spacing: 0.2px;
 }
 
@@ -97,30 +96,30 @@
 
 /* Primary Button */
 .btn-primary {
-  background-color: var(--green-bright);
+  background: linear-gradient(90deg, var(--gradient-start), var(--gradient-mid1), var(--gradient-mid2), var(--gradient-end));
   color: white;
-  box-shadow: 0 4px 6px rgba(29, 178, 51, 0.3);
+  box-shadow: 0 4px 6px rgba(163, 117, 255, 0.3);
 }
 
 .btn-primary:hover {
-  background-color: var(--green-medium);
-  box-shadow: 0 6px 8px rgba(29, 178, 51, 0.4);
+  background-color: white;
+  opacity: 0.9;
   transform: translateY(-2px) scale(1.05); /* subtle lift and scale */
 }
 
 /* Secondary Button Updated */
 .btn-secondary {
   background-color: white;
-  color: var(--green-bright);
-  border: 2px solid var(--green-bright);
-  box-shadow: 0 4px 6px rgba(29, 178, 51, 0.2);
+  color: var(--gradient-mid1);
+  border: 2px solid var(--gradient-mid1);
 }
 
 .btn-secondary:hover {
-  background-color: var(--green-bright);
+  background: linear-gradient(90deg, var(--gradient-start), var(--gradient-mid1), var(--gradient-mid2), var(--gradient-end));
   color: white;
-  box-shadow: 0 6px 8px rgba(29, 178, 51, 0.4);
+  box-shadow: 0 4px 6px rgba(163, 117, 255, 0.3);
   transform: translateY(-2px) scale(1.05); /* subtle lift and scale */
+  border: none;
 }
 
 

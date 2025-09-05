@@ -1,0 +1,23 @@
+const sampleData = {
+  name: "FinPay",
+  logo: "https://via.placeholder.com/80",
+  industry: "FinTech",
+  location: "Pune, India",
+  website: "https://finpay.com",
+  founders: [
+    {
+      name: "Ashish Nair",
+      email: "hidden",
+      contact: "hidden",
+      linkedin: "https://linkedin.com/in/example",
+      bio: "Passionate about simplifying digital payments.",
+    },
+  ],
+  overview: {
+    pitch: "Making digital payments seamless for SMEs.",
+    problem: "SMEs struggle with fragmented payment systems.",
+    solution: "Unified API & dashboard for all transactions.",
+    stage: "MVP",
+    founded: "2024",
+  },
+};

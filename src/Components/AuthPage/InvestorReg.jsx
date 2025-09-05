@@ -12,7 +12,7 @@ const InvestorReg = () => {
                 style={{ backdropFilter: "blur(5px)", boxShadow: "2px 2px 10px #808080" }}
             >
                 <h2 className=" primary-header "
-                    style={{ color: "#1DB233" }}
+                    style={{color: "var(--gradient-mid2)", textShadow:"2px 2px 2px #808080"}}
                 >
                     New investor Registration
                 </h2>

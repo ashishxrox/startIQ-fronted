@@ -7,11 +7,11 @@ const Nav = () => {
 
   return (
     <div
-      className={`h-[75px] w-full flex justify-center items-center bg-transparent ${currentPath === "/role-selection"
+      className={`h-[75px] w-full flex justify-center items-center bg-gray-50 ${currentPath === "/role-selection"
           ? "fixed z-[9] bg-transparent"
           : currentPath.startsWith("/registration")
             ? "fixed z-[9] bg-transparent"
-            : "bg-transparent"
+            : "bg-gray-50"
         }`}
     >
       <div className='w-[90%] h-full flex justify-between items-center flex-row'>

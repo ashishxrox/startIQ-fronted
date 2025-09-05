@@ -7,6 +7,8 @@ import Auth from './Components/AuthPage/Auth'
 import RoleSelection from './Components/AuthPage/RoleSelection'
 import Registration from './Components/AuthPage/Registration'
 import InvestorReg from './Components/AuthPage/InvestorReg'
+import DocumentUpload from './Components/AuthPage/DocumentUpload'
+import DashboardLayout from './Components/Dashboard/DasboardLayout'
 
 const App = () => {
   return (
@@ -19,6 +21,8 @@ const App = () => {
           <Route path='/role-selection' element={<RoleSelection />} />
           <Route path='/registration/startup' element={<Registration />} />
           <Route path='/registration/investor' element={<InvestorReg />} />
+          <Route path='/registration/startup/docs' element={<DocumentUpload />} />
+          <Route path='/dashboard' element={<DashboardLayout />} />
         </Routes>
         <Footer />
       </BrowserRouter>

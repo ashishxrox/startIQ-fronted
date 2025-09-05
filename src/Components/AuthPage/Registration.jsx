@@ -11,7 +11,7 @@ const Registration = () => {
                 style={{ backdropFilter: "blur(5px)", boxShadow: "2px 2px 10px #808080" }}
             >
                 <h2 className=" primary-header "
-                    style={{ color: "#1DB233" }}
+                    style={{color: "var(--gradient-end)", textShadow:"2px 2px 2px #808080"}}
                 >
                     New start up Registration
                 </h2>

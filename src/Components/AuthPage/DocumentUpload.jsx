@@ -35,8 +35,42 @@ const DocumentUpload = () => {
 
   const removeFile = (setter) => setter(null);
 
+
+  const handleSubmit = async () => {
+    if (!financials) {
+      alert("Please upload the Excel file.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("financials", financials);
+
+
+    try {
+      const res = await fetch("http://localhost:5002/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        alert(`Upload failed: ${err.error}`);
+        return;
+      }
+
+      const data = await res.json();
+      console.log("LLM Insights:", data.insights);
+      alert("Excel file processed successfully! Check console for insights.");
+    } catch (err) {
+      console.error("Upload error:", err);
+      alert("Something went wrong during upload.");
+    }
+  };
+
+
+
   return (
-    <div className="h-[105vh] w-full bg-[#ebebeb] flex justify-center items-center">
+    <div className="h-[115vh] w-full bg-[#ebebeb] flex justify-center items-center">
       <div className="w-full max-w-xl mx-auto bg-white rounded-2xl shadow-lg p-6 space-y-6">
         {/* Heading */}
         <h2 className="text-2xl font-bold bg-gradient-to-r from-[var(--gradient-start)] via-[var(--gradient-mid1)] via-[var(--gradient-mid2)] to-[var(--gradient-end)] bg-clip-text text-transparent">
@@ -44,7 +78,20 @@ const DocumentUpload = () => {
         </h2>
 
         {/* Pitch Deck */}
-        <div className="space-y-2">
+        <div className="relative space-y-2">
+          {/* Blocker Overlay */}
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[rgba(255,255,255,0.1)]  rounded-xl"
+          style={{backdropFilter:"blur(5px)"}}
+          >
+            <h5 className="text-red-600 font-bold text-center text-lg">
+              Not available for MVP 1
+            </h5>
+            <p className="text-gray-500 text-sm text-center mt-1">
+              This feature will be available in a future release.
+            </p>
+          </div>
+
+          {/* Original Content */}
           <p className="font-medium text-gray-700">Pitch Deck (PDF upload)</p>
           <p className="text-sm text-gray-500">
             Core material investors expect. AI can extract slides → overview,
@@ -52,8 +99,7 @@ const DocumentUpload = () => {
           </p>
 
           <div
-            onClick={() => document.getElementById("pitchDeckInput").click()}
-            className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center cursor-pointer hover:border-transparent hover:bg-gradient-to-r hover:from-[var(--gradient-start)] hover:via-[var(--gradient-mid1)] hover:via-[var(--gradient-mid2)] hover:to-[var(--gradient-end)] transition"
+            className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center cursor-not-allowed bg-gray-50 hover:bg-gray-50 transition"
           >
             <Upload className="mx-auto text-gray-400 mb-2" size={28} />
             <p className="text-gray-600 text-sm">Upload PDF</p>
@@ -62,7 +108,7 @@ const DocumentUpload = () => {
               type="file"
               accept="application/pdf"
               className="hidden"
-              onChange={(e) => handleFileChange(e, setPitchDeck, "pitch")}
+              disabled
             />
           </div>
 
@@ -86,6 +132,7 @@ const DocumentUpload = () => {
           </AnimatePresence>
         </div>
 
+
         {/* Financials */}
         <div className="space-y-2">
           <p className="font-medium text-gray-700">
@@ -104,7 +151,7 @@ const DocumentUpload = () => {
             <input
               id="financialsInput"
               type="file"
-              accept=".pdf,.xls,.xlsx"
+              accept=".xls,.xlsx"
               className="hidden"
               onChange={(e) => handleFileChange(e, setFinancials, "financials")}
             />
@@ -132,7 +179,7 @@ const DocumentUpload = () => {
 
         {/* Product Demo Link */}
         <div className="space-y-2">
-          <p className="font-medium text-gray-700">Product Demo (Video Link)</p>
+          <p className="font-medium text-gray-700">Product Demo (Video Link) <sub className="text-[#808080]">Optional</sub> </p>
           <p className="text-sm text-gray-500">
             Gives investors a feel of the product. Use YouTube/Vimeo links.
           </p>
@@ -167,10 +214,11 @@ const DocumentUpload = () => {
         <motion.button
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
-          disabled={!pitchDeck || !financials || !demoLink || !confirmation}
-          className={`w-full py-3 rounded-xl font-medium text-white shadow-md transition ${!pitchDeck || !financials || !demoLink || !confirmation
-              ? "bg-gray-300 cursor-not-allowed"
-              : "bg-gradient-to-r from-[var(--gradient-start)] via-[var(--gradient-mid1)] via-[var(--gradient-mid2)] to-[var(--gradient-end)]"
+          disabled={!financials || !confirmation}
+          onClick={handleSubmit}
+          className={`w-full py-3 rounded-xl font-medium text-white shadow-md transition ${!financials || !confirmation
+            ? "bg-gray-300 cursor-not-allowed"
+            : "bg-gradient-to-r from-[var(--gradient-start)] via-[var(--gradient-mid1)] via-[var(--gradient-mid2)] to-[var(--gradient-end)]"
             }`}
         >
           Submit

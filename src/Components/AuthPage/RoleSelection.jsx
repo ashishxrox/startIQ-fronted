@@ -1,20 +1,25 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { User, Briefcase } from "lucide-react";
 import Spline from '@splinetool/react-spline';
+import { path } from "d3";
 
 const RoleSelection = () => {
+  const navigate = useNavigate()
   const options = [
     {
       title: "Startup",
       description: "Showcase your idea, gain traction, and attract investors.",
       color: "bg-[var(--green-bright)]",
       icon: <Briefcase size={64} />,
+      path: "/registration/startup"
     },
     {
       title: "Investor",
       description: "Discover innovative startups and invest in the future.",
       color: "bg-[var(--yellow-bright)]",
       icon: <User size={64} />,
+      path: "/registration/investor"
     },
   ];
 
@@ -36,6 +41,10 @@ const RoleSelection = () => {
               whileHover={{ scale: 1.05, rotate: 1 }}
               whileTap={{ scale: 0.98 }}
               className={`group relative w-[325px] h-[350px] rounded-2xl shadow-xl bg-white p-6 cursor-pointer flex flex-col items-center justify-center text-white overflow-hidden`}
+
+              onClick={()=>{
+                navigate(option.path)
+              }}
             >
               <motion.div
                 className="absolute inset-0 bg-black/20 backdrop-blur-sm"

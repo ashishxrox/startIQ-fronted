@@ -21,3 +21,51 @@ const sampleData = {
     founded: "2024",
   },
 };
+
+
+<RedFlagsCard
+                flags={[
+                  "High burn rate",
+                  "Unproven market",
+                  "Weak team experience",
+                  "No clear revenue model",
+                ]}
+              />
+
+
+ <GreenFlagsCard
+                flags={[
+                  "Strong team",
+                  "Early traction",
+                  "Innovative product",
+                  "Scalable model",
+                  "Clear market fit",
+                ]}
+              />
+
+ <PeerComparisonCard
+            data={[
+              { name: "FinPay", industry: "FinTech", score: 78, highlight: true },
+              { name: "PayEase", industry: "FinTech", score: 65, trending: true },
+              { name: "Transactly", industry: "FinTech", score: 40 },
+              { name: "NeoPayments", industry: "FinTech", score: 90, highlight: true },
+            ]}
+          />
+
+const updates = [
+  {
+    text: "We onboarded 5 new clients this week and improved our payment API speed by 30% 🚀",
+    image: "https://via.placeholder.com/300x200",
+    date: "Sep 5, 2025",
+  },
+  {
+    text: "Launched new investor dashboard with live transaction monitoring.",
+    image: null,
+    date: "Aug 29, 2025",
+  },
+  {
+    text: "Secured seed funding of $1M from XYZ Ventures 🎉",
+    image: "https://via.placeholder.com/300x200",
+    date: "Aug 22, 2025",
+  },
+];

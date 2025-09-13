@@ -32,7 +32,7 @@ export const checkUserRole = async ({uid, startupID}) => {
 // ---------- Fetch all Startups ----------
 export const fecthAllStartups = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/all-startups`, {
+    const response = await fetch(`${API_BASE_URL}/users/all-startups`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

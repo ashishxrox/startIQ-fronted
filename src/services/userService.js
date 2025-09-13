@@ -1,5 +1,7 @@
 // src/services/userServices.js
-const API_BASE_URL = "http://localhost:5002/users"; // 🔹 adjust if deployed
+// const API_BASE_URL = "http://localhost:5002/users"; // 🔹 adjust if deployed
+// src/services/userServices.js
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // ---------- Check User Role ----------
 export const checkUserRole = async ({uid, startupID}) => {

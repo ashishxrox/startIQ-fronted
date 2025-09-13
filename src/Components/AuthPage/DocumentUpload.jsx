@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Upload, X } from "lucide-react";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const DocumentUpload = () => {
   const [pitchDeck, setPitchDeck] = useState(null);
@@ -47,7 +48,7 @@ const DocumentUpload = () => {
 
 
     try {
-      const res = await fetch("http://localhost:5002/api/upload", {
+      const res = await fetch(`${API_BASE_URL}/api/upload`, {
         method: "POST",
         body: formData,
       });

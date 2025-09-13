@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
 import Spline from '@splinetool/react-spline';
 import { useToast } from "../../context/ContextToast";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 
 const InvestorReg = () => {
@@ -83,7 +84,7 @@ const InvestorReg = () => {
 
         try {
             console.log(payload)
-            const res = await fetch("http://localhost:5002/users/register", {
+            const res = await fetch(`${API_BASE_URL}/users/register`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

@@ -6,7 +6,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 // ---------- Check User Role ----------
 export const checkUserRole = async ({uid, startupID}) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/check-role`, {
+    const response = await fetch(`${API_BASE_URL}/users/check-role`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

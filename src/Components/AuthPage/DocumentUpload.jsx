@@ -1,13 +1,23 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Upload, X } from "lucide-react";
+import { checkUserRole } from "../../services/userService";
+import { useToast } from "../../context/ContextToast";
+import { useLoader } from "../../context/LoaderContext";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const DocumentUpload = () => {
+  const navigate = useNavigate()
+  const { showToast } = useToast();
+  const { showLoader, hideLoader } = useLoader();
+
   const [pitchDeck, setPitchDeck] = useState(null);
   const [financials, setFinancials] = useState(null);
   const [demoLink, setDemoLink] = useState("");
   const [confirmation, setConfirmation] = useState(false);
+  const [startupID, setStartupID] = useState(null)
+
 
   const handleFileChange = (e, setter, type) => {
     const file = e.target.files[0];
@@ -15,7 +25,7 @@ const DocumentUpload = () => {
 
     // File validation
     if (type === "pitch" && file.type !== "application/pdf") {
-      alert("Pitch Deck must be a PDF file.");
+      showToast("Pitch Deck must be a PDF file.", "error");
       return;
     }
     if (
@@ -27,7 +37,7 @@ const DocumentUpload = () => {
         file.type === "application/vnd.ms-excel"
       )
     ) {
-      alert("Financials must be PDF or Excel file.");
+      showToast("Financials must be PDF or Excel file.", "error");
       return;
     }
 
@@ -39,15 +49,22 @@ const DocumentUpload = () => {
 
   const handleSubmit = async () => {
     if (!financials) {
-      alert("Please upload the Excel file.");
+      showToast("Please upload the Excel file.", "error");
       return;
+    }
+    if (!demoLink) {
+      showToast("Please add a demo Link", "error");
+      return
     }
 
     const formData = new FormData();
     formData.append("financials", financials);
+    formData.append("ytLink", demoLink); // ✅ Add YouTube link
+    formData.append("startupID", startupID)
 
 
     try {
+      showLoader();
       const res = await fetch(`${API_BASE_URL}/api/upload`, {
         method: "POST",
         body: formData,
@@ -55,18 +72,47 @@ const DocumentUpload = () => {
 
       if (!res.ok) {
         const err = await res.json();
-        alert(`Upload failed: ${err.error}`);
+        showToast(`Upload failed: ${err.error}`, "error");
         return;
       }
 
       const data = await res.json();
-      console.log("LLM Insights:", data.insights);
-      alert("Excel file processed successfully! Check console for insights.");
+      console.log("LLM Insights:", data);
+      showToast("Excel + YouTube link processed successfully!", "success");
     } catch (err) {
       console.error("Upload error:", err);
-      alert("Something went wrong during upload.");
+      showToast("Something went wrong during upload.", "error");
+    }finally{
+      hideLoader();
     }
   };
+
+  useEffect(() => {
+    const checkAccess = async () => {
+      const localId = sessionStorage.getItem("localId");
+      if(!localId){
+        navigate("/")
+        return
+      }
+      if(localId){
+        const { role, profile } = await checkUserRole({uid:localId});
+        if(role != "founder"){
+          navigate("/")
+          return
+        }
+        else if(role == "founder"){
+          setStartupID(profile.startupID)
+
+        }
+      }
+    }
+    checkAccess();
+  }, [])
+
+
+  useEffect(()=>{
+    console.log("startupId-> ", startupID)
+  }, [startupID])
 
 
 
@@ -82,7 +128,7 @@ const DocumentUpload = () => {
         <div className="relative space-y-2">
           {/* Blocker Overlay */}
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[rgba(255,255,255,0.1)]  rounded-xl"
-          style={{backdropFilter:"blur(5px)"}}
+            style={{ backdropFilter: "blur(5px)" }}
           >
             <h5 className="text-red-600 font-bold text-center text-lg">
               Not available for MVP 1

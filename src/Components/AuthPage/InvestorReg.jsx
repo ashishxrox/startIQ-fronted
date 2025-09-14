@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
 import Spline from '@splinetool/react-spline';
 import { useToast } from "../../context/ContextToast";
+import { useLoader } from "../../context/LoaderContext";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 
@@ -11,6 +12,7 @@ const InvestorReg = () => {
     const { showToast } = useToast();
     const navigate = useNavigate();
     const [uid, setUid] = useState(null);
+    const { showLoader, hideLoader } = useLoader();
 
     useEffect(() => {
         const localId = sessionStorage.getItem("localId");
@@ -84,6 +86,7 @@ const InvestorReg = () => {
 
         try {
             console.log(payload)
+            showLoader();
             const res = await fetch(`${API_BASE_URL}/users/register`, {
                 method: "POST",
                 headers: {
@@ -102,6 +105,8 @@ const InvestorReg = () => {
         } catch (err) {
             console.error(err);
             showToast("Profile creation failed", "error");
+        }finally{
+            hideLoader();
         }
     };
 

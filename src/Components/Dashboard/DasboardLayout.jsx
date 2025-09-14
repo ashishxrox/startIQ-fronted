@@ -6,33 +6,11 @@ import GreenFlagsCard from "./GreenFlagsCard";
 import RedFlagsCard from "./RedFlagsCard";
 import PeerComparisonCard from "./PeerComparisonCard";
 import WeeklyUpdateCard from "./WeeklyUpdateCard";
-import WeeklyUpdateGallery from './WeeklyUpdateGallery'
+import WeeklyUpdateGallery from "./WeeklyUpdateGallery";
 import { checkUserRole } from "../../services/userService";
+import { checkDocuments } from "../../services/documentService"; // ✅ import
 import BackButton from "../Utils/BackButton";
-
-const sampleData = {
-  name: "FinPay",
-  logo: "https://via.placeholder.com/80",
-  industry: "FinTech",
-  location: "Pune, India",
-  website: "https://finpay.com",
-  founders: [
-    {
-      name: "Ashish Nair",
-      email: "hidden",
-      contact: "hidden",
-      linkedin: "https://linkedin.com/in/example",
-      bio: "Passionate about simplifying digital payments.",
-    },
-  ],
-  overview: {
-    pitch: "Making digital payments seamless for SMEs.",
-    problem: "SMEs struggle with fragmented payment systems.",
-    solution: "Unified API & dashboard for all transactions.",
-    stage: "MVP",
-    founded: "2024",
-  },
-};
+import { useLoader } from "../../context/LoaderContext";
 
 const updates = [
   {
@@ -55,7 +33,7 @@ const updates = [
 const transformProfileToData = (profile) => {
   return {
     name: profile.startupName || "",
-    logo: "https://via.placeholder.com/80", // You can replace this with a real logo field if available
+    logo: "https://via.placeholder.com/80",
     industry: profile.industry || "",
     location: profile.location || "",
     website: profile.website || "",
@@ -65,7 +43,7 @@ const transformProfileToData = (profile) => {
         email: profile.email || "hidden",
         contact: profile.contactNumber || "hidden",
         linkedin: profile.linkedin || "",
-        bio: profile.milestones || "", // or any other suitable description
+        bio: profile.milestones || "",
       },
     ],
     overview: {
@@ -78,71 +56,72 @@ const transformProfileToData = (profile) => {
   };
 };
 
-
-
 const DashboardLayout = () => {
   const navigate = useNavigate();
   const [uid, setUid] = useState(null);
-  const [startupData, setStartupData] = useState(null)
-  const [role, setRole] = useState(null)
+  const [startupData, setStartupData] = useState(null);
+  const [role, setRole] = useState(null);
   const { uid: urlUid } = useParams();
+  const { showLoader, hideLoader } = useLoader();
+
 
   useEffect(() => {
     const localId = sessionStorage.getItem("localId");
-
     if (!localId) {
       navigate("/");
     } else {
       setUid(localId);
-
     }
   }, [navigate]);
 
-
   useEffect(() => {
-  const fetchUserRole = async () => {
-    if (!uid) return;
+    const fetchUserRole = async () => {
+      if (!uid) return;
 
-    try {
-      const { role, profile } = await checkUserRole({ uid });
-      setRole(role);
+      try {
+        showLoader();
+        const { role, profile } = await checkUserRole({ uid });
+        setRole(role);
 
-      // ✅ Switch UID source based on role
-      if (role === "investor" && urlUid) {
-        console.log("Investor mode → using UID from URL:", urlUid);
-        console.log(typeof urlUid);
+        if (role === "investor" && urlUid) {
+          // Investor can view startup details
+          const { profile: startupProfile } = await checkUserRole({
+            uid: "",
+            startupID: urlUid,
+          });
+          setStartupData(transformProfileToData(startupProfile));
+        } else if (role === "founder") {
+          // Founder should see their own startup
+          setStartupData(transformProfileToData(profile));
 
-        const { profile: startupProfile } = await checkUserRole({
-          uid: "",
-          startupID: urlUid,
-        });
-
-        setStartupData(transformProfileToData(startupProfile));
-      } else if (role === "founder") {
-        console.log("Founder mode → using UID from session:", uid);
-        setStartupData(transformProfileToData(profile));
+          // ✅ Extra check → ensure documents exist
+          const startupID = profile?.startupID;
+          if (startupID) {
+            const res = await checkDocuments(startupID);
+            if (!res.exists) {
+              console.warn("⚠️ No documents found → redirecting to docs page");
+              navigate("/registration/startup/docs");
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user role:", error);
+      }finally{
+        hideLoader();
       }
-    } catch (error) {
-      console.error("Error fetching user role:", error);
-    }
-  };
+    };
 
-  fetchUserRole();
-}, [uid, urlUid]);
-
-
-
+    fetchUserRole();
+  }, [uid, urlUid, navigate]);
 
   return (
     <div className="w-full min-h-screen bg-gray-50 p-6">
-      {role == "investor" && <BackButton/>}
+      {role === "investor" && <BackButton />}
       <div className="max-w-7xl mx-auto space-y-6">
-
         {/* Row 1 */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left wide col */}
           <div className="lg:col-span-2 bg-white rounded-2xl shadow-md p-6 border border-gray-100">
-            {/* <StartupDetailsCard data={sampleData} /> */}
             <StartupDetailsCard data={startupData} role={role} />
           </div>
 
@@ -187,16 +166,17 @@ const DashboardLayout = () => {
           />
         </div>
 
-        {/* Row 3 */}
-        {role == 'founder' && <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
-          <WeeklyUpdateCard />
-        </div>}
+        {/* Row 3 → Only founders can add weekly updates */}
+        {role === "founder" && (
+          <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
+            <WeeklyUpdateCard />
+          </div>
+        )}
 
-        {/* Row 4 */}
+        {/* Row 4 → Gallery */}
         <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
-          <WeeklyUpdateGallery updates={updates} />;
+          <WeeklyUpdateGallery updates={updates} />
         </div>
-
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import React from 'react'
 import { Routes, Route, BrowserRouter } from 'react-router-dom'
 import { ToastProvider } from "./context/ContextToast";
+import { LoaderProvider } from "./context/LoaderContext";
 import Landing from './Components/LandingPage/Landing'
 import Footer from './Components/Footer/Footer'
 import Nav from './Components/NavBar/Nav'
@@ -16,6 +17,7 @@ const App = () => {
   return (
     <div className='w-[100%] overflow-x-hidden'>
       <BrowserRouter>
+       <LoaderProvider>
         <ToastProvider>
           <Nav />
           <Routes>
@@ -31,6 +33,7 @@ const App = () => {
           </Routes>
           <Footer />
         </ToastProvider>
+        </LoaderProvider>
       </BrowserRouter>
     </div>
   )

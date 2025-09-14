@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { auth } from "../AuthPage/Firebase/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import Toast from "../Utils/Toast"; // ✅ import reusable Toast
+import { useLoader } from "../../context/LoaderContext";
 import SideMenu from "./SideMenu";
 import { checkUserRole } from "../../services/userService";
 
@@ -10,6 +11,7 @@ const Nav = () => {
   const location = useLocation();
   const currentPath = location.pathname;
   const navigate = useNavigate();
+  const { showLoader, hideLoader } = useLoader();
 
   const [user, setUser] = useState(null);
   const [toast, setToast] = useState(null);
@@ -31,11 +33,14 @@ const Nav = () => {
       const localId = sessionStorage.getItem("localId");
       if (!localId) return;
       try {
+        showLoader();
         const { role, profile } = await checkUserRole({uid:localId});
         setUsername(profile.investorName)
         setRole(role)
       } catch (error) {
         console.error("Error fetching user role:", error);
+      }finally{
+        hideLoader();
       }
     };
 

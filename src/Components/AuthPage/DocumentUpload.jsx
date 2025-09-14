@@ -78,7 +78,9 @@ const DocumentUpload = () => {
 
       const data = await res.json();
       console.log("LLM Insights:", data);
+      navigate("/dashboard/startup")
       showToast("Excel + YouTube link processed successfully!", "success");
+      
     } catch (err) {
       console.error("Upload error:", err);
       showToast("Something went wrong during upload.", "error");

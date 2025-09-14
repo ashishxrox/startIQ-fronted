@@ -18,7 +18,17 @@ const PeerComparisonCard = ({ data }) => {
       </p>
 
       {/* Comparison Table */}
-      <div className="mt-6 space-y-4">
+      <div className="mt-6 space-y-4 relative">
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[rgba(255,255,255,0.5)]  rounded-xl"
+          style={{ backdropFilter: "blur(10px)" }}
+        >
+          <h5 className="text-red-600 font-bold text-center text-lg">
+            Not available for MVP 1
+          </h5>
+          <p className="text-gray-500 text-sm text-center mt-1">
+            This feature will be available in a future release.
+          </p>
+        </div>
         {data.map((peer, index) => (
           <div
             key={index}
@@ -39,13 +49,12 @@ const PeerComparisonCard = ({ data }) => {
             <div className="flex-1 max-w-md">
               <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
                 <div
-                  className={`h-2 rounded-full transition-all duration-700 ${
-                    peer.score >= 70
+                  className={`h-2 rounded-full transition-all duration-700 ${peer.score >= 70
                       ? "bg-green-500"
                       : peer.score >= 40
-                      ? "bg-yellow-400"
-                      : "bg-red-500"
-                  }`}
+                        ? "bg-yellow-400"
+                        : "bg-red-500"
+                    }`}
                   style={{ width: `${peer.score}%` }}
                 ></div>
               </div>
@@ -54,13 +63,12 @@ const PeerComparisonCard = ({ data }) => {
             {/* Right - Score */}
             <div className="flex items-center gap-2">
               <span
-                className={`text-sm font-semibold ${
-                  peer.score >= 70
+                className={`text-sm font-semibold ${peer.score >= 70
                     ? "text-green-600"
                     : peer.score >= 40
-                    ? "text-yellow-600"
-                    : "text-red-600"
-                }`}
+                      ? "text-yellow-600"
+                      : "text-red-600"
+                  }`}
               >
                 {peer.score}/100
               </span>

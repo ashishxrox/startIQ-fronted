@@ -9,8 +9,10 @@ import WeeklyUpdateCard from "./WeeklyUpdateCard";
 import WeeklyUpdateGallery from "./WeeklyUpdateGallery";
 import { checkUserRole } from "../../services/userService";
 import { checkDocuments } from "../../services/documentService"; // ✅ import
+import { analyseStartupWithAI } from "../../services/aiService"; // ✅ new import
 import BackButton from "../Utils/BackButton";
 import { useLoader } from "../../context/LoaderContext";
+import { useToast } from "../../context/ContextToast";
 
 const updates = [
   {
@@ -61,8 +63,17 @@ const DashboardLayout = () => {
   const [uid, setUid] = useState(null);
   const [startupData, setStartupData] = useState(null);
   const [role, setRole] = useState(null);
+  const [startupID, setStartupID] = useState(null)
   const { uid: urlUid } = useParams();
   const { showLoader, hideLoader } = useLoader();
+  const { showToast } = useToast();
+
+
+  // ✅ AI states
+  const [aiScore, setAiScore] = useState(null);
+  const [redFlags, setRedFlags] = useState([]);
+  const [greenFlags, setGreenFlags] = useState([]);
+  const [createdAt, setCreatedAt] = useState(null)
 
 
   useEffect(() => {
@@ -90,6 +101,7 @@ const DashboardLayout = () => {
             uid: "",
             startupID: urlUid,
           });
+          setStartupID(urlUid)
           setStartupData(transformProfileToData(startupProfile));
         } else if (role === "founder") {
           // Founder should see their own startup
@@ -97,6 +109,7 @@ const DashboardLayout = () => {
 
           // ✅ Extra check → ensure documents exist
           const startupID = profile?.startupID;
+          setStartupID(startupID)
           if (startupID) {
             const res = await checkDocuments(startupID);
             if (!res.exists) {
@@ -107,13 +120,58 @@ const DashboardLayout = () => {
         }
       } catch (error) {
         console.error("Error fetching user role:", error);
-      }finally{
+      } finally {
         hideLoader();
       }
     };
 
     fetchUserRole();
   }, [uid, urlUid, navigate]);
+
+
+  useEffect(() => {
+  const fetchAIAnalysis = async () => {
+    if (!startupID) return;
+
+    try {
+      showLoader();
+      const { insights, redFlags, greenFlags, score, createdAt } =
+        await analyseStartupWithAI(startupID);
+
+      // ✅ update your states
+      setAiScore(score);
+      setRedFlags(redFlags || []);
+      setGreenFlags(greenFlags || []);
+      setCreatedAt(createdAt || 0)
+    } catch (error) {
+      console.error("❌ Error fetching AI analysis:", error);
+    } finally {
+      hideLoader();
+    }
+  };
+
+  fetchAIAnalysis();
+}, [startupID]);
+
+
+useEffect(() => {
+    if (createdAt) {
+      const date = new Date(createdAt);
+
+      // Format: 14 Feb 2025 hh:MM
+      const formattedDate = date.toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false, // set to true if you want AM/PM
+      });
+
+      console.log(formattedDate);
+      showToast(`Last updated on: ${formattedDate}`, "info",6000);
+    }
+  }, [createdAt]);
 
   return (
     <div className="w-full min-h-screen bg-gray-50 p-6">
@@ -129,11 +187,11 @@ const DashboardLayout = () => {
           {/* Right col split into 3 */}
           <div className="flex flex-col gap-6">
             <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
-              <StartupScoreCard score={78} />
+              <StartupScoreCard score={ aiScore ?? 78} />
             </div>
             <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
               <GreenFlagsCard
-                flags={[
+                flags={greenFlags ?? [
                   "Strong team",
                   "Early traction",
                   "Innovative product",
@@ -144,7 +202,7 @@ const DashboardLayout = () => {
             </div>
             <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
               <RedFlagsCard
-                flags={[
+                flags={redFlags ?? [
                   "High burn rate",
                   "Unproven market",
                   "Weak team experience",

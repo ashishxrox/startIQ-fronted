@@ -13,7 +13,7 @@ export const LoaderProvider = ({ children }) => {
     <LoaderContext.Provider value={{ loading, showLoader, hideLoader }}>
       {children}
       {loading && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-[rgba(0,0,0,0.5)]  flex items-center justify-center z-50" style={{backdropFilter:"blur(5px)"}}>
           {/* Replace this with your custom animation */}
           <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
         </div>

@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
 import { auth } from "../AuthPage/Firebase/firebase";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import Toast from "../Utils/Toast"; // ✅ import reusable Toast
+import { useToast } from "../../context/ContextToast";
 import { useLoader } from "../../context/LoaderContext";
-import SideMenu from "./SideMenu";
 import { checkUserRole } from "../../services/userService";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import SideMenu from "./SideMenu";
+import Toast from "../Utils/Toast"; // ✅ import reusable Toast
+import useAutoLogout from "../../hooks/useAutoLogout";
+
 
 const Nav = () => {
   const location = useLocation();
   const currentPath = location.pathname;
   const navigate = useNavigate();
   const { showLoader, hideLoader } = useLoader();
+  const { showToast } = useToast();
 
   const [user, setUser] = useState(null);
   const [toast, setToast] = useState(null);
@@ -27,6 +31,12 @@ const Nav = () => {
     });
     return () => unsubscribe();
   }, []);
+
+  useAutoLogout(() => {
+    showToast("Session expired after 8 hours", "info");
+    navigate("/auth");
+  });
+
 
   useEffect(() => {
     const fetchUserRole = async () => {

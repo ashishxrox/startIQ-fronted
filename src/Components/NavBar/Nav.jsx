@@ -45,7 +45,12 @@ const Nav = () => {
       try {
         showLoader();
         const { role, profile } = await checkUserRole({uid:localId});
-        setUsername(profile.investorName)
+        if (role == "founder"){
+          setUsername(profile.founderName)
+        }else{
+          setUsername(profile.investorName)
+        }
+        
         setRole(role)
       } catch (error) {
         console.error("Error fetching user role:", error);
@@ -60,6 +65,7 @@ const Nav = () => {
   // logout handler
   const handleLogout = async () => {
     try {
+      showLoader();
       await signOut(auth);
       sessionStorage.removeItem("localId");
       setToast({ message: "👋 Logged out successfully!", type: "success" });
@@ -67,6 +73,8 @@ const Nav = () => {
     } catch (error) {
       console.error("Logout error:", error);
       setToast({ message: "❌ Failed to logout. Try again.", type: "error" });
+    }finally{
+      hideLoader()
     }
   };
 
@@ -123,7 +131,7 @@ const Nav = () => {
           )}
         </div>
       </div>
-      {user && role == "investor" && <SideMenu userName={userName}/>}
+      {user && <SideMenu userName={userName} role={role}/>}
 
       {/* Toast Notification */}
       {toast && (

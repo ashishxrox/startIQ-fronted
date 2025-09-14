@@ -68,6 +68,7 @@ const DashboardLayout = () => {
   useEffect(() => {
     const localId = sessionStorage.getItem("localId");
     if (!localId) {
+      showToast("Invalid Route Access", "error");
       navigate("/");
     } else {
       setUid(localId);

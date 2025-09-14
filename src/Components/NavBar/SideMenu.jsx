@@ -3,12 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { Menu, X, User, Bookmark, Bell, List } from "lucide-react";
 import { checkUserRole } from "../../services/userService";
 
-const SideMenu = ({userName}) => {
+const SideMenu = ({ userName, role }) => {
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate()
     const toggleMenu = () => setIsOpen(!isOpen);
     
-    
+
+
 
     return (
         <>
@@ -45,30 +46,44 @@ const SideMenu = ({userName}) => {
                 </button>
                 <div className="h-[10%] w-full flex justify-center gap-[5px] flex-col items-start">
                     <p className="text-m font-bold text-gray-800">Hi...</p>
-                <h2 className="text-xl font-bold text-gray-800">{userName}</h2>
+                    <h2 className="text-xl font-bold text-gray-800">{userName}</h2>
                 </div>
-                
+
 
                 <nav className="flex flex-col gap-4 text-gray-700 font-medium">
-                    <button className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition cursor-pointer">
+                    <button
+                        onClick={() => {
+                            if (role == "founder") {
+                                navigate('/dashboard/startup')
+                                setIsOpen(false)
+                            }
+                        }}
+                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition cursor-pointer">
                         <User className="w-5 h-5 text-pink-500" />
                         View Profile
                     </button>
 
-                    <button className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition cursor-pointer">
+                    {role == "investor" && <button className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition cursor-pointer">
                         <Bookmark className="w-5 h-5 text-purple-500" />
                         Saved Startups
-                    </button>
+                    </button>}
 
-                    <button className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition cursor-pointer">
+                    {role == "investor" && <button className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition cursor-pointer">
                         <Bell className="w-5 h-5 text-blue-500" />
                         Updates
-                    </button>
+                    </button>}
                     {/* New option: Listing Page */}
-                    <button className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition cursor-pointer">
+                    {role == "investor" && <button className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition cursor-pointer"
+                        onClick={() => {
+
+                            navigate('/listing-page')
+                            setIsOpen(false)
+
+                        }}
+                    >
                         <List className="w-5 h-5 text-green-500" />
                         Listing Page
-                    </button>
+                    </button>}
                 </nav>
             </div>
         </>

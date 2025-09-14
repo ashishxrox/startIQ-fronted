@@ -94,11 +94,13 @@ const DocumentUpload = () => {
       const localId = sessionStorage.getItem("localId");
       if(!localId){
         navigate("/")
+        showToast("Invalid Route Access", "error");
         return
       }
       if(localId){
         const { role, profile } = await checkUserRole({uid:localId});
         if(role != "founder"){
+          showToast("Invalid Route Access", "error");
           navigate("/")
           return
         }

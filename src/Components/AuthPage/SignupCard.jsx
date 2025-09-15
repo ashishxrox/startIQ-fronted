@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signUp } from "./Firebase/authService";
-import Toast from "../Utils/Toast"; // import reusable Toast
+import Toast from "../Utils/Toast"; 
+import { Eye, EyeOff } from "lucide-react"; // ✅ eye icons
 
 const SignupCard = () => {
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // ✅ new
   const [toast, setToast]       = useState(null);
   const [loading, setLoading]   = useState(false);
 
@@ -29,7 +31,6 @@ const SignupCard = () => {
     try {
       await signUp(email, password);
       setToast({ message: "🎉 Signup successful!", type: "success" });
-
       setTimeout(() => navigate("/role-selection"), 1500);
     } catch (err) {
       console.error(err);
@@ -56,17 +57,26 @@ const SignupCard = () => {
           <label className="input-label">Email</label>
         </div>
 
-        {/* Password */}
-        <div className="input-group">
+        {/* Password with eye */}
+        <div className="input-group relative w-full">
           <input
-            type="password"
-            className="input-field"
+            type={showPassword ? "text" : "password"} // ✅ toggle
+            className="input-field pr-10"
             required
             placeholder=" "
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
           <label className="input-label">Password</label>
+
+          {/* Eye icon */}
+          <button
+            type="button"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-900 cursor-pointer"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
         </div>
 
         {/* Button */}
@@ -84,7 +94,7 @@ const SignupCard = () => {
         <Toast
           message={toast.message}
           type={toast.type}
-          duration={3000} // configurable
+          duration={3000}
           onClose={() => setToast(null)}
         />
       )}

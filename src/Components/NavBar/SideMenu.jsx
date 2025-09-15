@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Menu, X, User, Bookmark, Bell, List } from "lucide-react";
-import { checkUserRole } from "../../services/userService";
+import Tooltip from "../Utils/Tooltip";
 
 const SideMenu = ({ userName, role }) => {
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate()
     const toggleMenu = () => setIsOpen(!isOpen);
-    
+
 
 
 
@@ -51,6 +51,7 @@ const SideMenu = ({ userName, role }) => {
 
 
                 <nav className="flex flex-col gap-4 text-gray-700 font-medium">
+
                     <button
                         onClick={() => {
                             if (role == "founder") {
@@ -58,9 +59,19 @@ const SideMenu = ({ userName, role }) => {
                                 setIsOpen(false)
                             }
                         }}
-                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition cursor-pointer">
-                        <User className="w-5 h-5 text-pink-500" />
-                        View Profile
+
+                        // className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition cursor-pointer">
+                        className="flex items-center gap-3 p-2 rounded-lg cursor-not-allowed ">
+                        <Tooltip 
+                            left="50%"
+                            message={[
+                                "Not available for MVP 1",
+                                "Investor Profile will be available in a future release."
+                            ]}
+                        >
+                            <User className="w-5 h-5 text-pink-500" />
+                            View Profile
+                        </Tooltip>
                     </button>
 
                     {role == "investor" && <button className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition cursor-pointer">

@@ -12,6 +12,7 @@ import InvestorReg from './Components/AuthPage/InvestorReg'
 import DocumentUpload from './Components/AuthPage/DocumentUpload'
 import DashboardLayout from './Components/Dashboard/DasboardLayout'
 import StartupListingPage from './Components/ListingPage/StartupListingPage'
+import ScrollToTop from './Components/Utils/ScrollToTop';
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
        <LoaderProvider>
         <ToastProvider>
           <Nav />
+          <ScrollToTop />
           <Routes>
             <Route path='/' element={<Landing />} />
             <Route path='/auth' element={<Auth />} />

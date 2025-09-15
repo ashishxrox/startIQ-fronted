@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { login } from "./Firebase/authService";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useToast } from "../../context/ContextToast";
 import { checkUserRole } from "../../services/userService";
+import { Eye, EyeOff } from "lucide-react"; // 👁 modern icons
 
 const LoginCard = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
-  const [uid, setUid] = useState(null);
-
+  const [showPassword, setShowPassword] = useState(false);
 
   const getErrorMessage = (errorCode) => {
     switch (errorCode) {
@@ -31,27 +31,21 @@ const LoginCard = () => {
     try {
       await login(email, password);
 
-      // ✅ After login, Firebase usually gives uid/localId, store it if not already
       const localId = sessionStorage.getItem("localId");
-
       if (localId) {
-        const { role } = await checkUserRole({uid:localId});
-        console.log(role)
+        const { role } = await checkUserRole({ uid: localId });
         if (role === "founder") {
           navigate("/dashboard/startup");
         } else if (role === "investor") {
           navigate("/listing-page");
         } else {
-          // 🚀 new user without role → go to registration
           navigate("/role-selection");
         }
       }
 
       showToast("🎉 Login successful!", "success");
-      // 🚀 later you can navigate here after login
     } catch (err) {
       console.error(err);
-      // setToast({ message: getErrorMessage(err.code), type: "error" });
       showToast(`${getErrorMessage(err.code)}`, "error");
     }
     setLoading(false);
@@ -78,12 +72,12 @@ const LoginCard = () => {
           </label>
         </div>
 
-        {/* Password */}
-        <div className="input-group">
+        {/* Password with show/hide */}
+        <div className="input-group relative">
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             id="password"
-            className="input-field"
+            className="input-field pr-10" // add padding so text doesn’t overlap icon
             required
             placeholder=" "
             value={password}
@@ -92,6 +86,16 @@ const LoginCard = () => {
           <label htmlFor="password" className="input-label">
             Password
           </label>
+
+          {/* 👁 Toggle button */}
+          <button
+            type="button"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer hover:text-gray-800 transition-colors"
+            onClick={() => setShowPassword(!showPassword)}
+            aria-label="Toggle password visibility"
+          >
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
         </div>
 
         {/* Forgot Password */}
@@ -110,16 +114,6 @@ const LoginCard = () => {
           {loading ? "Logging in..." : "Login"}
         </button>
       </div>
-
-      {/* Toast Notification */}
-      {/* {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          duration={3000}
-          onClose={() => setToast(null)}
-        />
-      )} */}
     </div>
   );
 };

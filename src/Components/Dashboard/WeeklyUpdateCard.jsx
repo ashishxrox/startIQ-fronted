@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Image as ImageIcon, Send, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+import Tooltip from "../Utils/Tooltip";
+
 const WeeklyUpdateCard = () => {
   const [text, setText] = useState("");
   const [image, setImage] = useState(null);
@@ -94,16 +96,25 @@ const WeeklyUpdateCard = () => {
         </AnimatePresence>
 
         {/* Actions */}
-        <div className="flex justify-between items-center">
-          <label className="flex items-center gap-2 text-gray-600 cursor-pointer hover:text-[var(--gradient-mid2)] transition">
-            <ImageIcon size={18} />
-            <span className="text-sm">Add image</span>
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleImageUpload}
-            />
+        <div className="flex justify-between items-center relative">
+
+          {/* <label className="flex items-center gap-2 text-gray-600 cursor-pointer hover:text-[var(--gradient-mid2)] transition"> */}
+          <label className="flex items-center gap-2 text-gray-600 cursor-not-allowed transition">
+            <Tooltip
+              message={[
+                "Not available for MVP 1",
+                "This feature will be available in a future release."
+              ]}
+            >
+              <ImageIcon size={18} />
+              <span className="text-sm">Add image</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
+            </Tooltip>
           </label>
 
           <motion.button

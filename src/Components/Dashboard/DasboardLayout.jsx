@@ -7,6 +7,8 @@ import RedFlagsCard from "./RedFlagsCard";
 import PeerComparisonCard from "./PeerComparisonCard";
 import WeeklyUpdateCard from "./WeeklyUpdateCard";
 import WeeklyUpdateGallery from "./WeeklyUpdateGallery";
+import Banner from "./Baner";
+import AILoader from "../Utils/AILoader";
 import { checkUserRole } from "../../services/userService";
 import { checkDocuments } from "../../services/documentService"; // ✅ import
 import { analyseStartupWithAI } from "../../services/aiService"; // ✅ new import
@@ -62,6 +64,7 @@ const DashboardLayout = () => {
   const navigate = useNavigate();
   const [uid, setUid] = useState(null);
   const [startupData, setStartupData] = useState(null);
+  const [ytLink, setYtLink] = useState(null)
   const [role, setRole] = useState(null);
   const [startupID, setStartupID] = useState(null)
   const { uid: urlUid } = useParams();
@@ -74,6 +77,7 @@ const DashboardLayout = () => {
   const [redFlags, setRedFlags] = useState([]);
   const [greenFlags, setGreenFlags] = useState([]);
   const [createdAt, setCreatedAt] = useState(null)
+  const [aiLoading, setAiLoading] = useState(false);
 
 
   useEffect(() => {
@@ -92,21 +96,22 @@ const DashboardLayout = () => {
 
       try {
         showLoader();
-        const { role, profile } = await checkUserRole({ uid });
+        const { role, profile, ytLink } = await checkUserRole({ uid });
         setRole(role);
 
         if (role === "investor" && urlUid) {
           // Investor can view startup details
-          const { profile: startupProfile } = await checkUserRole({
+          const { profile: startupProfile, ytLink:ytLink } = await checkUserRole({
             uid: "",
             startupID: urlUid,
           });
           setStartupID(urlUid)
+          setYtLink(ytLink)
           setStartupData(transformProfileToData(startupProfile));
         } else if (role === "founder") {
           // Founder should see their own startup
           setStartupData(transformProfileToData(profile));
-
+          setYtLink(ytLink)
           // ✅ Extra check → ensure documents exist
           const startupID = profile?.startupID;
           setStartupID(startupID)
@@ -130,31 +135,33 @@ const DashboardLayout = () => {
 
 
   useEffect(() => {
-  const fetchAIAnalysis = async () => {
-    if (!startupID) return;
+    const fetchAIAnalysis = async () => {
+      if (!startupID) return;
 
-    try {
-      showLoader();
-      const { insights, redFlags, greenFlags, score, createdAt } =
-        await analyseStartupWithAI(startupID);
+      try {
+        // showLoader();
+        setAiLoading(true)
+        const { insights, redFlags, greenFlags, score, createdAt } =
+          await analyseStartupWithAI(startupID);
 
-      // ✅ update your states
-      setAiScore(score);
-      setRedFlags(redFlags || []);
-      setGreenFlags(greenFlags || []);
-      setCreatedAt(createdAt || 0)
-    } catch (error) {
-      console.error("❌ Error fetching AI analysis:", error);
-    } finally {
-      hideLoader();
-    }
-  };
+        // ✅ update your states
+        setAiScore(score);
+        setRedFlags(redFlags || []);
+        setGreenFlags(greenFlags || []);
+        setCreatedAt(createdAt || 0)
+      } catch (error) {
+        console.error("❌ Error fetching AI analysis:", error);
+      } finally {
+        // hideLoader();
+        setAiLoading(false)
+      }
+    };
 
-  fetchAIAnalysis();
-}, [startupID]);
+    fetchAIAnalysis();
+  }, [startupID]);
 
 
-useEffect(() => {
+  useEffect(() => {
     if (createdAt) {
       const date = new Date(createdAt);
 
@@ -169,13 +176,18 @@ useEffect(() => {
       });
 
       console.log(formattedDate);
-      showToast(`Last updated on: ${formattedDate}`, "info",6000);
+      showToast(`Last updated on: ${formattedDate}`, "info", 6000);
     }
   }, [createdAt]);
 
   return (
     <div className="w-full min-h-screen bg-gray-50 p-6">
-      {role === "investor" && <BackButton />}
+      {/* 🔹 Banner Section */}
+      {role === "investor" && <BackButton/>}
+     <Banner
+      videoUrl={ytLink? ytLink: "https://www.youtube.com/embed/dQw4w9WgXcQ"} // pass YT link here
+      startupName={startupData?.name || "My Startup"}
+    />
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Row 1 */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -187,10 +199,14 @@ useEffect(() => {
           {/* Right col split into 3 */}
           <div className="flex flex-col gap-6">
             <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
-              <StartupScoreCard score={ aiScore ?? 78} />
+              {aiLoading ? (<AILoader done={false}
+                messages={["Calculating overall startup potential score...", "Balancing risks and opportunities into a single score...", "Generating your startup’s performance index..."]}
+              />) : (<StartupScoreCard score={aiScore ?? 78} />)}
             </div>
             <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
-              <GreenFlagsCard
+              {aiLoading ? (<AILoader done={false}
+                messages={["Identifying strong advantages and growth signals...", "Spotting positive factors that boost investor confidence...", "Highlighting strengths and competitive edges..."]}
+              />) : (<GreenFlagsCard
                 flags={greenFlags ?? [
                   "Strong team",
                   "Early traction",
@@ -198,17 +214,19 @@ useEffect(() => {
                   "Scalable model",
                   "Clear market fit",
                 ]}
-              />
+              />)}
             </div>
             <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
-              <RedFlagsCard
+              {aiLoading ? (<AILoader done={false}
+                messages={["Checking for potential risks and warning signs...", "Evaluating challenges that could slow down growth...", "Highlighting weaknesses investors should consider..."]}
+              />) : (<RedFlagsCard
                 flags={redFlags ?? [
                   "High burn rate",
                   "Unproven market",
                   "Weak team experience",
                   "No clear revenue model",
                 ]}
-              />
+              />)}
             </div>
           </div>
         </div>

@@ -1,3 +1,4 @@
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import StartupDetailsCard from "./StartupDetailsCard";
@@ -16,22 +17,22 @@ import BackButton from "../Utils/BackButton";
 import { useLoader } from "../../context/LoaderContext";
 import { useToast } from "../../context/ContextToast";
 
-const updates = [
+const updates2 = [
   {
     text: "We onboarded 5 new clients this week and improved our payment API speed by 30% 🚀",
     image: "https://via.placeholder.com/300x200",
     date: "Sep 5, 2025",
   },
-  {
-    text: "Launched new investor dashboard with live transaction monitoring.",
-    image: null,
-    date: "Aug 29, 2025",
-  },
-  {
-    text: "Secured seed funding of $1M from XYZ Ventures 🎉",
-    image: "https://via.placeholder.com/300x200",
-    date: "Aug 22, 2025",
-  },
+  // {
+  //   text: "Launched new investor dashboard with live transaction monitoring.",
+  //   image: null,
+  //   date: "Aug 29, 2025",
+  // },
+  // {
+  //   text: "Secured seed funding of $1M from XYZ Ventures 🎉",
+  //   image: "https://via.placeholder.com/300x200",
+  //   date: "Aug 22, 2025",
+  // },
 ];
 
 const transformProfileToData = (profile) => {
@@ -66,6 +67,8 @@ const DashboardLayout = () => {
   const [startupData, setStartupData] = useState(null);
   const [ytLink, setYtLink] = useState(null)
   const [role, setRole] = useState(null);
+  const [updates, setUpdate] = useState(null)
+  const [newUpdate, setNewUpdate] = useState(false)
   const [startupID, setStartupID] = useState(null)
   const { uid: urlUid } = useParams();
   const { showLoader, hideLoader } = useLoader();
@@ -101,7 +104,7 @@ const DashboardLayout = () => {
 
         if (role === "investor" && urlUid) {
           // Investor can view startup details
-          const { profile: startupProfile, ytLink:ytLink } = await checkUserRole({
+          const { profile: startupProfile, ytLink: ytLink } = await checkUserRole({
             uid: "",
             startupID: urlUid,
           });
@@ -174,20 +177,59 @@ const DashboardLayout = () => {
         minute: "2-digit",
         hour12: false, // set to true if you want AM/PM
       });
-
-      console.log(formattedDate);
       showToast(`Last updated on: ${formattedDate}`, "info", 6000);
     }
   }, [createdAt]);
 
+
+  useEffect(() => {
+    if (startupID) {
+      const fetchStartupUpdates = async () => {
+        try {
+          showLoader()
+          if (!startupID) throw new Error("startupID is required to fetch startup updates");
+
+          const response = await fetch(
+            `${API_BASE_URL}/users/startup-updates/${startupID}`
+          );
+
+          if (!response.ok) {
+            if (response.status === 404) {
+              showToast("Problem fetching update", "error");
+              return [];
+            }
+            throw new Error(`Failed to fetch updates: ${response.statusText}`);
+          }
+
+          const data = await response.json(); // { updates: [...] }
+          return data.updates || []; // ✅ extract the array
+        } catch (error) {
+          console.error(error);
+          return [];
+        }finally{
+          hideLoader()
+        }
+      };
+
+      fetchStartupUpdates().then((updatesArray) => setUpdate(updatesArray));
+    }
+  }, [startupID, newUpdate]);
+
+
+  useEffect(() => {
+    console.log(updates)
+  }, [updates])
+
+
+
   return (
     <div className="w-full min-h-screen bg-gray-50 p-6">
       {/* 🔹 Banner Section */}
-      {role === "investor" && <BackButton/>}
-     <Banner
-      videoUrl={ytLink? ytLink: "https://www.youtube.com/embed/dQw4w9WgXcQ"} // pass YT link here
-      startupName={startupData?.name || "My Startup"}
-    />
+      {role === "investor" && <BackButton />}
+      <Banner
+        videoUrl={ytLink ? ytLink : "https://www.youtube.com/embed/dQw4w9WgXcQ"} // pass YT link here
+        startupName={startupData?.name || "My Startup"}
+      />
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Row 1 */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -246,13 +288,13 @@ const DashboardLayout = () => {
         {/* Row 3 → Only founders can add weekly updates */}
         {role === "founder" && (
           <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
-            <WeeklyUpdateCard />
+            <WeeklyUpdateCard uid={uid} setNewUpdate= {setNewUpdate}/>
           </div>
         )}
 
         {/* Row 4 → Gallery */}
         <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
-          <WeeklyUpdateGallery updates={updates} />
+          <WeeklyUpdateGallery updates={updates} setNewUpdate={setNewUpdate} newUpdate={newUpdate}  />
         </div>
       </div>
     </div>

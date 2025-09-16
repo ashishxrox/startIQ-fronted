@@ -1,9 +1,32 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, X } from "lucide-react";
+import { useToast } from "../../context/ContextToast";
 
-const WeeklyUpdateGallery = ({ updates }) => {
+const WeeklyUpdateGallery = ({ updates, newUpdate, setNewUpdate }) => {
+  const { showToast } = useToast();
   const [selectedUpdate, setSelectedUpdate] = useState(null);
+
+  useEffect(()=>{
+    setNewUpdate(false)
+  },[updates])
+
+  // Handle empty data
+  if (!updates || updates.length === 0) return <p>No updates yet.</p>;
+
+  // Helper: convert Firestore timestamp to formatted date
+  const formatDate = (timestamp) => {
+    if (!timestamp?._seconds) return "";
+    const date = new Date(timestamp._seconds * 1000);
+    return date.toLocaleString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  };
 
   return (
     <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
@@ -23,7 +46,9 @@ const WeeklyUpdateGallery = ({ updates }) => {
             onClick={() => setSelectedUpdate(update)}
           >
             {/* Snippet */}
-            <p className="text-gray-700 text-sm line-clamp-3">{update.text}</p>
+            <p className="text-gray-700 text-sm line-clamp-3">
+              {update.updateContent}
+            </p>
 
             {/* Optional Image */}
             {update.image && (
@@ -37,7 +62,7 @@ const WeeklyUpdateGallery = ({ updates }) => {
             {/* Upload Time */}
             <div className="flex items-center gap-2 text-xs text-gray-500 mt-3">
               <Calendar size={14} />
-              {update.date}
+              {formatDate(update.dateCreated)}
             </div>
           </motion.div>
         ))}
@@ -60,7 +85,7 @@ const WeeklyUpdateGallery = ({ updates }) => {
             >
               {/* Close Button */}
               <button
-                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 cursor-pointer"
                 onClick={() => setSelectedUpdate(null)}
               >
                 <X size={20} />
@@ -72,10 +97,12 @@ const WeeklyUpdateGallery = ({ updates }) => {
               </h4>
               <div className="flex items-center gap-2 text-xs text-gray-500 mb-4">
                 <Calendar size={14} />
-                {selectedUpdate.date}
+                {formatDate(selectedUpdate.dateCreated)}
               </div>
 
-              <p className="text-gray-700 text-sm">{selectedUpdate.text}</p>
+              <p className="text-gray-700 text-sm">
+                {selectedUpdate.updateContent}
+              </p>
 
               {selectedUpdate.image && (
                 <img

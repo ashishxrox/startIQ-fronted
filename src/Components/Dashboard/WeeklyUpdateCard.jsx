@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 import { Image as ImageIcon, Send, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useToast } from "../../context/ContextToast";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 import Tooltip from "../Utils/Tooltip";
 
-const WeeklyUpdateCard = () => {
+const WeeklyUpdateCard = ({ uid, setNewUpdate }) => {
   const [text, setText] = useState("");
   const [image, setImage] = useState(null);
   const [submitted, setSubmitted] = useState(false);
+  const { showToast } = useToast();
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -16,14 +19,51 @@ const WeeklyUpdateCard = () => {
     }
   };
 
-  const handleSubmit = () => {
-    if (!text.trim()) return;
-    setSubmitted(true);
-    setTimeout(() => {
-      setText("");
-      setImage(null);
-      setSubmitted(false);
-    }, 2000);
+  const handleSubmit = async () => {
+    if (!text.trim()) {
+      showToast("Cant upload empty update!", "error");
+      return;
+    }
+
+    try {
+      console.log(uid)
+      if (!uid) throw new Error("UID is required to fetch startup updates");
+
+      const response = await fetch(
+        `${API_BASE_URL}/users/create-update`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ uid, updateContent: text }),
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          showToast("Problem uploading update", "error");
+          return { role: null, profile: null }; // user not found
+        }
+        throw new Error(`Failed to check role: ${response.statusText}`);
+      }
+
+      showToast("Update added successfull", "success");
+      setNewUpdate(true)
+      return await response.json();
+    } catch (error) {
+      console.error("❌ checkUserRole error:", error);
+      throw error;
+    } finally {
+      setSubmitted(true);
+      setTimeout(() => {
+        setText("");
+        setImage(null);
+        setSubmitted(false);
+      }, 2000);
+    }
+
+
   };
 
   return (
@@ -98,29 +138,24 @@ const WeeklyUpdateCard = () => {
         {/* Actions */}
         <div className="flex justify-between items-center relative">
 
-          {/* <label className="flex items-center gap-2 text-gray-600 cursor-pointer hover:text-[var(--gradient-mid2)] transition"> */}
-          <label className="flex items-center gap-2 text-gray-600 cursor-not-allowed transition">
-            <Tooltip
-              message={[
-                "Not available for MVP 1",
-                "This feature will be available in a future release."
-              ]}
-            >
-              <ImageIcon size={18} />
+          <label className="flex items-center gap-2 text-gray-600 cursor-pointer hover:text-[var(--gradient-mid2)] transition">
+
+
+            {/* <ImageIcon size={18} />
               <span className="text-sm">Add image</span>
               <input
                 type="file"
                 accept="image/*"
                 className="hidden"
                 onChange={handleImageUpload}
-              />
-            </Tooltip>
+              /> */}
+
           </label>
 
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={handleSubmit}
-            className="flex items-center gap-2 bg-gradient-to-r from-[var(--gradient-start)] via-[var(--gradient-mid2)] to-[var(--gradient-end)] text-white px-4 py-2 rounded-xl shadow hover:opacity-90 transition"
+            className="flex items-center cursor-pointer gap-2 bg-gradient-to-r from-[var(--gradient-start)] via-[var(--gradient-mid2)] to-[var(--gradient-end)] text-white px-4 py-2 rounded-xl shadow hover:opacity-90 transition"
           >
             <Send size={16} />
             Post Update

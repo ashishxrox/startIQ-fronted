@@ -232,7 +232,7 @@ const DocumentUpload = () => {
         <div className="space-y-2">
           <p className="font-medium text-gray-700">Product Demo (Video Link) <sub className="text-[#808080]">Optional</sub> </p>
           <p className="text-sm text-gray-500">
-            Gives investors a feel of the product. Use YouTube/Vimeo links.
+            Gives investors a feel of the product. Use YouTube links only.
           </p>
           <input
             type="url"

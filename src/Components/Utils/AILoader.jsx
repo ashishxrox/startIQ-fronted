@@ -52,7 +52,7 @@ const AILoader = ({ done, messages }) => {
       {/* Animated message */}
       <motion.p
         key={messageIndex}
-        className="text-gray-700 text-lg font-medium"
+        className="text-gray-700 text-lg font-medium max-w-[65%] text-center"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -10 }}

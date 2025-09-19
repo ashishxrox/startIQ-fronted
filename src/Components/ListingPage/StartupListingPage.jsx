@@ -4,6 +4,8 @@ import { fetchAllStartups, checkUserRole } from "../../services/userService";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLoader } from "../../context/LoaderContext";
 import { useToast } from "../../context/ContextToast";
+import { analyseInvestorWithAI } from "../../services/investorAiService";
+import AILoader from "../Utils/AILoader";
 
 const PAGE_SIZE = 8;
 
@@ -19,36 +21,39 @@ const StartupListingPage = () => {
   const { showLoader, hideLoader } = useLoader();
   const { showToast } = useToast();
 
-// 🔹 Fetch startups for a given page
-const loadStartups = async (page = 1) => {
-  let loaderTimeout;
+  // ✅ AI states
+  const [aiLoading, setAiLoading] = useState(false);
 
-  try {
-    setLoading(true);
+  // 🔹 Fetch startups for a given page
+  const loadStartups = async (page = 1) => {
+    let loaderTimeout;
 
-    // ⏱️ Delay showing loader by 4s
-    loaderTimeout = setTimeout(() => {
-      showLoader();
-    }, 4000);
+    try {
+      setLoading(true);
 
-    const { startups: newStartups, totalCount } = await fetchAllStartups(
-      page,
-      PAGE_SIZE
-    );
+      // ⏱️ Delay showing loader by 4s
+      loaderTimeout = setTimeout(() => {
+        showLoader();
+      }, 4000);
 
-    setStartups(newStartups);
-    setTotalCount(totalCount);
-    setCurrentPage(page);
-  } catch (error) {
-    console.error("❌ Failed to load startups:", error);
-  } finally {
-    // ❌ Clear loader timeout (prevents it from firing if API was quick)
-    clearTimeout(loaderTimeout);
+      const { startups: newStartups, totalCount } = await fetchAllStartups(
+        page,
+        PAGE_SIZE
+      );
 
-    hideLoader(); // ensure loader is hidden if it was shown
-    setLoading(false);
-  }
-};
+      setStartups(newStartups);
+      setTotalCount(totalCount);
+      setCurrentPage(page);
+    } catch (error) {
+      console.error("❌ Failed to load startups:", error);
+    } finally {
+      // ❌ Clear loader timeout (prevents it from firing if API was quick)
+      clearTimeout(loaderTimeout);
+
+      hideLoader(); // ensure loader is hidden if it was shown
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     loadStartups(1); // load first page by default
@@ -88,6 +93,25 @@ const loadStartups = async (page = 1) => {
     fetchUserRole();
   }, [navigate, uid]);
 
+
+  useEffect(() => {
+    const analyseInvestor = async () => {
+      if (role == "investor") {
+        try {
+          setAiLoading(true)
+          await analyseInvestorWithAI(uid);
+        } catch (error) {
+          console.error("❌ Error fetching AI analysis:", error);
+        } finally {
+          // hideLoader();
+          setAiLoading(false)
+        }
+
+      }
+    }
+    analyseInvestor()
+  }, [role])
+
   // 🔹 Render pagination numbers
   const renderPagination = () => {
     if (totalPages <= 1) return null;
@@ -100,8 +124,8 @@ const loadStartups = async (page = 1) => {
           onClick={() => loadStartups(i)}
           disabled={loading}
           className={`px-4 py-2 rounded-full transition-all duration-300 cursor-pointer  ${currentPage === i
-              ? "bg-indigo-500 text-white shadow-md"
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            ? "bg-indigo-500 text-white shadow-md"
+            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
             }`}
         >
           {i}
@@ -123,7 +147,13 @@ const loadStartups = async (page = 1) => {
       </h2>
 
       {/* Grid of cards with animation */}
-      <AnimatePresence mode="wait">
+      {aiLoading ? (<AILoader done={false} messages={[
+        "Reviewing your investment profile and preferences...",
+        "Analyzing your portfolio strategy and track record...",
+        "Evaluating sector focus and deal flow alignment...",
+        "Assessing portfolio synergies and founder alignment...",
+        "Summarizing your investor thesis and strengths..."
+      ]} />) : (<AnimatePresence mode="wait">
         {loading ? (
           <div className="text-center py-20 text-gray-500">Loading...</div>
         ) : (
@@ -169,7 +199,7 @@ const loadStartups = async (page = 1) => {
             ))}
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>)}
 
 
       {/* Numbered Pagination */}

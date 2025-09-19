@@ -8,11 +8,13 @@ import RedFlagsCard from "./RedFlagsCard";
 import PeerComparisonCard from "./PeerComparisonCard";
 import WeeklyUpdateCard from "./WeeklyUpdateCard";
 import WeeklyUpdateGallery from "./WeeklyUpdateGallery";
+import DealNoteModal from "./DealNoteModal";
 import Banner from "./Baner";
 import AILoader from "../Utils/AILoader";
 import { checkUserRole } from "../../services/userService";
 import { checkDocuments } from "../../services/documentService"; // ✅ import
 import { analyseStartupWithAI } from "../../services/aiService"; // ✅ new import
+import { generateDealNote } from "../../services/investorAiService";
 import BackButton from "../Utils/BackButton";
 import { useLoader } from "../../context/LoaderContext";
 import { useToast } from "../../context/ContextToast";
@@ -70,6 +72,7 @@ const DashboardLayout = () => {
   const [updates, setUpdate] = useState(null)
   const [newUpdate, setNewUpdate] = useState(false)
   const [startupID, setStartupID] = useState(null)
+  const [dealNoteOpen, setDealNoteOpen] = useState(false);
   const { uid: urlUid } = useParams();
   const { showLoader, hideLoader } = useLoader();
   const { showToast } = useToast();
@@ -81,6 +84,7 @@ const DashboardLayout = () => {
   const [greenFlags, setGreenFlags] = useState([]);
   const [createdAt, setCreatedAt] = useState(null)
   const [aiLoading, setAiLoading] = useState(false);
+  const [dealNote, setDealNote] = useState(null)
 
 
   useEffect(() => {
@@ -206,7 +210,7 @@ const DashboardLayout = () => {
         } catch (error) {
           console.error(error);
           return [];
-        }finally{
+        } finally {
           hideLoader()
         }
       };
@@ -215,10 +219,32 @@ const DashboardLayout = () => {
     }
   }, [startupID, newUpdate]);
 
+  const dealNoteConstructor = (note, startupData) => {
+    return {
+      ...note,
+      name: startupData?.name,
+      logo: startupData?.logo,
+      stage: startupData?.overview?.stage,
+      sector: startupData?.industry,
+      location: startupData?.location
+    }
+  }
 
-  useEffect(() => {
-    console.log(updates)
-  }, [updates])
+  const handleViewDealNote = async () => {
+    try {
+      setDealNoteOpen(true) // ✅ Open modal here instead of useEffect
+      setAiLoading(true)
+      const note = await generateDealNote(uid, startupID)
+      setDealNote(dealNoteConstructor(note, startupData)) // ✅ Construct before storing
+      
+    } catch (error) {
+      console.error(error);
+      return [];
+    } finally {
+      setAiLoading(false)
+    }
+  }
+
 
 
 
@@ -226,6 +252,21 @@ const DashboardLayout = () => {
     <div className="w-full min-h-screen bg-gray-50 p-6">
       {/* 🔹 Banner Section */}
       {role === "investor" && <BackButton />}
+      {role === "investor" && (
+        <div className="flex items-center gap-4 mb-4 relative left-[5%]">
+          {/* <BackButton /> */}
+          <button
+            onClick={() => {
+
+              handleViewDealNote()
+
+            }}
+            className="btn btn-primary transition cursor-pointer"
+          >
+            View Deal Note
+          </button>
+        </div>
+      )}
       <Banner
         videoUrl={ytLink ? ytLink : "https://www.youtube.com/embed/dQw4w9WgXcQ"} // pass YT link here
         startupName={startupData?.name || "My Startup"}
@@ -288,15 +329,22 @@ const DashboardLayout = () => {
         {/* Row 3 → Only founders can add weekly updates */}
         {role === "founder" && (
           <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
-            <WeeklyUpdateCard uid={uid} setNewUpdate= {setNewUpdate}/>
+            <WeeklyUpdateCard uid={uid} setNewUpdate={setNewUpdate} />
           </div>
         )}
 
         {/* Row 4 → Gallery */}
         <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100">
-          <WeeklyUpdateGallery updates={updates} setNewUpdate={setNewUpdate} newUpdate={newUpdate}  />
+          <WeeklyUpdateGallery updates={updates} setNewUpdate={setNewUpdate} newUpdate={newUpdate} />
         </div>
       </div>
+      <DealNoteModal
+        isOpen={dealNoteOpen}
+        onClose={() => setDealNoteOpen(false)}
+        startup={dealNote}
+        aiLoading={aiLoading}
+      />
+
     </div>
   );
 };

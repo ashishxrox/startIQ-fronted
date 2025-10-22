@@ -69,3 +69,16 @@ const updates = [
     date: "Aug 22, 2025",
   },
 ];
+
+
+  const favouriteStartups = [
+    { name: "GreenFuel", sector: "Clean Energy", stage: "Seed", logoUrl: "" },
+    { name: "MedPlus", sector: "HealthTech", stage: "Pre-Series A", logoUrl: "" },
+    // If empty, it will show the "No startups marked as favourites yet." message
+  ];
+
+    const dealNotes = [
+  { startupName: "FinTrack", verdict: "invest", dateGenerated: "Oct 21, 2025" },
+  { startupName: "EcoDrive", verdict: "consider", dateGenerated: "Oct 20, 2025" },
+  { startupName: "HealthMate", verdict: "do_not_invest", dateGenerated: "Oct 19, 2025" },
+];

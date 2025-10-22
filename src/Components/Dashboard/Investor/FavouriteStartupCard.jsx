@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 const gradientPresets = [
@@ -11,18 +12,21 @@ const FavouriteStartupCard = ({ startup, index }) => {
   const { name, sector, stage, logoUrl } = startup;
   const gradient = gradientPresets[index % gradientPresets.length];
 
+  const navigate = useNavigate()
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.1 }}
-      className={`w-full rounded-2xl shadow-lg ${gradient} p-6 text-white hover:scale-105 transition-transform cursor-pointer relative overflow-hidden`}
+      onClick={() => navigate(`/dashboard/${startup.startupID}`)}
+      className={`w-full h-[250px] rounded-2xl shadow-lg ${gradient} p-6 text-white hover:scale-105 transition-transform cursor-pointer relative overflow-hidden`}
     >
       {/* Animated Glow */}
       <div className="absolute inset-0 opacity-20 animate-pulse blur-xl bg-white/20 rounded-2xl"></div>
 
       {/* Content */}
-      <div className="relative flex flex-col md:items-center md:justify-between gap-4">
+      <div className="relative flex flex-col md:items-center md:justify-between gap-4 h-full">
         {/* Logo / Initials */}
         <div className="w-16 h-16 flex items-center justify-center rounded-full bg-white/20 text-white font-bold text-xl md:text-2xl flex-shrink-0">
           {logoUrl ? (
@@ -41,9 +45,11 @@ const FavouriteStartupCard = ({ startup, index }) => {
         </div>
 
         {/* Name & Sector */}
-        <div className="flex flex-col flex-1">
+        <div className="flex flex-col flex-1 text-center justify-center">
           <h3 className="text-lg md:text-xl font-bold">{name}</h3>
-          <p className="text-sm md:text-base opacity-80">{sector}</p>
+          <p className="text-sm md:text-base opacity-80">
+            {sector.length > 50 ? sector.slice(0, 50) + "..." : sector}
+          </p>
         </div>
 
         {/* Stage Badge */}

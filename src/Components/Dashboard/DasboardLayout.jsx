@@ -15,6 +15,7 @@ import { checkUserRole } from "../../services/userService";
 import { checkDocuments } from "../../services/documentService"; // ✅ import
 import { analyseStartupWithAI } from "../../services/aiService"; // ✅ new import
 import { generateDealNote } from "../../services/investorAiService";
+import { addFavouriteStartup } from "../../services/investorService";
 import BackButton from "../Utils/BackButton";
 import { useLoader } from "../../context/LoaderContext";
 import { useToast } from "../../context/ContextToast";
@@ -77,6 +78,24 @@ const DashboardLayout = () => {
   const { uid: urlUid } = useParams();
   const { showLoader, hideLoader } = useLoader();
   const { showToast } = useToast();
+  const [fav, setFavourite] = useState(null)
+  const [liked, setLiked] = useState(null)
+
+  useEffect(()=>{
+    if(fav != null && startupID!= null){
+      console.log(fav)
+      console.log(fav.includes(startupID))
+      setLiked(fav.includes(startupID))
+    }
+  },[fav, startupID])
+
+  useEffect(()=>{
+      if(liked == true){
+        showToast("Startup added to favourite", "success");
+      }else{
+        showToast("Startup removed from favourite", "error");
+      }
+  },[liked])
 
 
   // ✅ AI states
@@ -106,6 +125,11 @@ const DashboardLayout = () => {
         showLoader();
         const { role, profile, ytLink } = await checkUserRole({ uid });
         setRole(role);
+        
+        if(role === "investor"){
+          const {favourites} =  await checkUserRole({uid})
+          setFavourite(favourites)
+        }
 
         if (role === "investor" && urlUid) {
           // Investor can view startup details
@@ -140,6 +164,7 @@ const DashboardLayout = () => {
 
     fetchUserRole();
   }, [uid, urlUid, navigate]);
+
 
 
   useEffect(() => {
@@ -237,7 +262,7 @@ const DashboardLayout = () => {
       setAiLoading(true)
       const note = await generateDealNote(uid, startupID)
       setDealNote(dealNoteConstructor(note, startupData)) // ✅ Construct before storing
-      
+
     } catch (error) {
       console.error(error);
       return [];
@@ -247,6 +272,19 @@ const DashboardLayout = () => {
   }
 
 
+  const handleAddToFavorite = async() => {
+    console.log("function called")
+    try {
+      showLoader()
+      const response = await addFavouriteStartup(uid, startupID);
+      console.log(response.message);
+      setLiked(!liked)
+    } catch (err) {
+      console.error("Failed to add favourite", err);
+    }finally{
+      hideLoader()
+    }
+  }
 
 
   return (
@@ -268,7 +306,7 @@ const DashboardLayout = () => {
           </button>
         </div>
       )}
-      {role === "investor" && <LikeButton/>}
+      {role === "investor" && <LikeButton defaultLiked={liked} onToggle={handleAddToFavorite} />}
       <Banner
         videoUrl={ytLink ? ytLink : "https://www.youtube.com/embed/dQw4w9WgXcQ"} // pass YT link here
         startupName={startupData?.name || "My Startup"}

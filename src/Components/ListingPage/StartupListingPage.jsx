@@ -21,6 +21,7 @@ const StartupListingPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const { showLoader, hideLoader } = useLoader();
   const { showToast } = useToast();
+  const [favourites, setFavourites] = useState([])
 
   // ✅ AI states
   const [aiLoading, setAiLoading] = useState(false);
@@ -78,7 +79,8 @@ const StartupListingPage = () => {
       if (!uid) return;
       try {
         showLoader();
-        const { role } = await checkUserRole({ uid });
+        const { role, favourites } = await checkUserRole({ uid });
+        setFavourites(favourites)
         setRole(role);
 
         if (role !== "investor") {
@@ -188,9 +190,9 @@ const StartupListingPage = () => {
               >
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
                 {/* Heart ICon */}
-                <div className="absolute top-[5px] right-[10px] w-12 h-12 mb-4 flex items-center justify-center">
+                {favourites.includes(startup.startupID) && <div className="absolute top-[5px] right-[10px] w-12 h-12 mb-4 flex items-center justify-center">
                   <Heart className="w-7 h-7 text-red-500 fill-red-500 stroke-red-500" />
-                </div>
+                </div>}
 
                 <div className="flex justify-center mt-4">
                   <div className="h-20 w-20 rounded-2xl bg-gray-50 shadow-inner flex items-center justify-center p-2 group-hover:scale-105 transition">

@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useLoader } from "../../../context/LoaderContext";
 import { useToast } from "../../../context/ContextToast";
 import { checkUserRole } from "../../../services/userService";
+import { fetchFavouriteStartups } from "../../../services/investorService";
+import { fetchDealNotes } from "../../../services/investorService";
 import BackButton from "../../Utils/BackButton";
 
 import InvestorOverviewCard from "./InvestorOverviewCard";
@@ -20,6 +22,8 @@ const InvestorDashboardLayout = () => {
   const [loading, setLoading] = useState(false);
   const { showLoader, hideLoader } = useLoader();
   const { showToast } = useToast();
+  const [favourites, setFavourites] = useState([]);
+  const [dealNotes, setDealNotes] = useState([])
 
   const investorData = {
     investorName: "Rajiv Mehta",
@@ -42,17 +46,9 @@ const InvestorDashboardLayout = () => {
     { name: "Foodify", sector: "FoodTech", stage: "Pre-Series A", logoUrl: "https://logo.clearbit.com/figma.com" },
   ];
 
-  const favouriteStartups = [
-    { name: "GreenFuel", sector: "Clean Energy", stage: "Seed", logoUrl: "" },
-    { name: "MedPlus", sector: "HealthTech", stage: "Pre-Series A", logoUrl: "" },
-    // If empty, it will show the "No startups marked as favourites yet." message
-  ];
 
-  const dealNotes = [
-  { startupName: "FinTrack", verdict: "invest", dateGenerated: "Oct 21, 2025" },
-  { startupName: "EcoDrive", verdict: "consider", dateGenerated: "Oct 20, 2025" },
-  { startupName: "HealthMate", verdict: "do_not_invest", dateGenerated: "Oct 19, 2025" },
-];
+
+
 
 
   // 🔹 User auth check
@@ -86,6 +82,29 @@ const InvestorDashboardLayout = () => {
     };
     fetchUserRole();
   }, [navigate, uid]);
+
+  
+  useEffect(() => {
+  const getInvestorData = async () => {
+    try {
+      showLoader(); // show loader before fetching
+      const data = await fetchFavouriteStartups(uid);
+      const notes = await fetchDealNotes(uid)
+      setFavourites(data);
+      setDealNotes(notes)
+    } catch (error) {
+      console.error("Failed to fetch favourite startups:", error);
+      showToast("Failed to load favourites", "error");
+    } finally {
+      hideLoader(); // hide loader in any case
+    }
+  };
+
+  if (uid) {
+    getInvestorData();
+  }
+}, [uid]);
+
   return (
     <div className="min-h-screen bg-gray-50 px-8 py-10">
       {/* Header */}
@@ -121,7 +140,7 @@ const InvestorDashboardLayout = () => {
 
       {/* === Row 3: Full Width === */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 hover:shadow-md transition-shadow">
-        <FavouritesRow favourites={favouriteStartups} />
+        <FavouritesRow favourites={favourites} />
       </div>
 
       {/* === Row 3: Full Width === */}

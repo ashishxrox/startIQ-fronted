@@ -5,11 +5,16 @@ import { motion, AnimatePresence } from "framer-motion";
 const LikeButton = ({
   size = 34,
   defaultLiked = false,
-  onToggle = () => {},
+  onToggle = () => { },
 }) => {
-  const [liked, setLiked] = useState(defaultLiked);
+  const [liked, setLiked] = useState(null);
+
   const [showTooltip, setShowTooltip] = useState(false);
   const [showInitialTooltip, setShowInitialTooltip] = useState(true);
+
+  useEffect(()=>{
+    setLiked(defaultLiked)
+  },[defaultLiked])
 
   const handleClick = () => {
     const newLiked = !liked;
@@ -59,9 +64,8 @@ const LikeButton = ({
       >
         <Heart
           size={size}
-          className={`transition-all duration-300 ${
-            liked ? "fill-red-500 stroke-red-500" : "stroke-gray-400"
-          }`}
+          className={`transition-all duration-300 ${liked ? "fill-red-500 stroke-red-500" : "stroke-gray-400"
+            }`}
         />
       </motion.button>
     </div>

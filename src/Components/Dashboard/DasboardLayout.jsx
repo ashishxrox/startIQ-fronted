@@ -18,6 +18,7 @@ import { generateDealNote } from "../../services/investorAiService";
 import BackButton from "../Utils/BackButton";
 import { useLoader } from "../../context/LoaderContext";
 import { useToast } from "../../context/ContextToast";
+import LikeButton from "../Utils/LikeButton";
 
 const updates2 = [
   {
@@ -267,6 +268,7 @@ const DashboardLayout = () => {
           </button>
         </div>
       )}
+      {role === "investor" && <LikeButton/>}
       <Banner
         videoUrl={ytLink ? ytLink : "https://www.youtube.com/embed/dQw4w9WgXcQ"} // pass YT link here
         startupName={startupData?.name || "My Startup"}

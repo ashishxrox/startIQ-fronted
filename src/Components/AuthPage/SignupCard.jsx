@@ -42,7 +42,13 @@ const SignupCard = () => {
   return (
     <div className="h-full w-full flex justify-center items-center flex-col gap-[35px]">
       <h3 className="secondary-header">Sign Up</h3>
-      <div className="h-[60%] w-[65%] flex justify-start flex-col items-center gap-[30px]">
+      <div className="h-[60%] w-[65%] flex justify-start flex-col items-center gap-[30px]"
+      onKeyDown={(e)=>{
+            if(e.key === "Enter" && !loading){
+              handleSignup()
+            }
+          }}
+      >
 
         {/* Email */}
         <div className="input-group">

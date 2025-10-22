@@ -13,6 +13,7 @@ import DocumentUpload from './Components/AuthPage/DocumentUpload'
 import DashboardLayout from './Components/Dashboard/DasboardLayout'
 import StartupListingPage from './Components/ListingPage/StartupListingPage'
 import ScrollToTop from './Components/Utils/ScrollToTop';
+import InvestorDashboardLayout from './Components/Dashboard/Investor/InvestorDashboardLayout';
 
 const App = () => {
   return (
@@ -30,6 +31,7 @@ const App = () => {
             <Route path='/registration/investor' element={<InvestorReg />} />
             <Route path='/registration/startup/docs' element={<DocumentUpload />} />
             <Route path='/dashboard/startup/' element={<DashboardLayout />} />
+            <Route path='/dashboard/investor/' element={<InvestorDashboardLayout />} />
             <Route path='/dashboard/:uid' element={<DashboardLayout />} />
             <Route path='/listing-page' element={<StartupListingPage />} />
           </Routes>

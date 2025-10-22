@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { fetchAllStartups, checkUserRole } from "../../services/userService";
 import { motion, AnimatePresence } from "framer-motion";
@@ -142,9 +143,19 @@ const StartupListingPage = () => {
 
   return (
     <div className="p-8 min-h-screen bg-gray-50">
-      <h2 className="text-3xl font-bold text-gray-800 mb-10">
-        🚀 Startup Listings
-      </h2>
+      <div className=" w-full h-auto flex justify-start items-center flex-row mb-10 gap-[35px]">
+        <h2 className="text-3xl font-bold text-gray-800 ">
+          🚀 Startup Listings
+        </h2>
+        {<button className="btn btn-secondary flex justify-center items-center"
+          onClick={() => {
+            navigate('/dashboard/investor')
+          }}
+        >
+          Dashboard
+        </button>}
+      </div>
+
 
       {/* Grid of cards with animation */}
       {aiLoading ? (<AILoader done={false} messages={[
@@ -176,6 +187,11 @@ const StartupListingPage = () => {
                   hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group relative overflow-hidden"
               >
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
+                {/* Heart ICon */}
+                <div className="absolute top-[5px] right-[10px] w-12 h-12 mb-4 flex items-center justify-center">
+                  <Heart className="w-7 h-7 text-red-500 fill-red-500 stroke-red-500" />
+                </div>
+
                 <div className="flex justify-center mt-4">
                   <div className="h-20 w-20 rounded-2xl bg-gray-50 shadow-inner flex items-center justify-center p-2 group-hover:scale-105 transition">
                     <img

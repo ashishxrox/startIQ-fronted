@@ -23,7 +23,6 @@ const Nav = () => {
   const [userName, setUsername] = useState("User")
 
 
-
   // track user login state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -96,9 +95,10 @@ const Nav = () => {
         </Link>
 
         <div
-          className={`basis-[25%] h-[90%] w-full flex justify-between items-center flex-row ${currentPath === "/auth" ? "relative" : ""
+          className={`basis-[25%] h-[90%] w-full flex justify-start gap-[20px] items-center flex-row ${currentPath === "/auth" ? "relative" : ""
             }`}
         >
+
           {user ? (
             // If user logged in -> show logout
             <button

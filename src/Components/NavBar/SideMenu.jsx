@@ -52,27 +52,19 @@ const SideMenu = ({ userName, role }) => {
 
                 <nav className="flex flex-col gap-4 text-gray-700 font-medium">
 
-                    {role == "founder" && <button
+                    <button
                         onClick={() => {
 
-                            navigate('/dashboard/startup')
+                            navigate('/dashboard/investor')
                             setIsOpen(false)
 
                         }}
 
                         className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition cursor-pointer">
-                        
-                        {/* <Tooltip 
-                            left="50%"
-                            message={[
-                                "Not available for MVP 1",
-                                "Investor Profile will be available in a future release."
-                            ]}
-                        > */}
                         <User className="w-5 h-5 text-pink-500" />
-                        View Profile
+                        Dashboard
                         {/* </Tooltip> */}
-                    </button>}
+                    </button>
 
                     {role == "investor" && <button className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition cursor-pointer">
                         <Bookmark className="w-5 h-5 text-purple-500" />

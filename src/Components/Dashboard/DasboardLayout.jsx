@@ -81,21 +81,22 @@ const DashboardLayout = () => {
   const [fav, setFavourite] = useState(null)
   const [liked, setLiked] = useState(null)
 
-  useEffect(()=>{
-    if(fav != null && startupID!= null){
+  useEffect(() => {
+    if (fav != null && startupID != null) {
       console.log(fav)
       console.log(fav.includes(startupID))
       setLiked(fav.includes(startupID))
     }
-  },[fav, startupID])
+  }, [fav, startupID])
 
-  useEffect(()=>{
-      if(liked == true){
+  useEffect(() => {
+    if (role == "investor") {
+      if (liked == true) {
         showToast("Startup added to favourite", "success");
-      }else{
-        showToast("Startup removed from favourite", "error");
       }
-  },[liked])
+    }
+
+  }, [liked])
 
 
   // ✅ AI states
@@ -125,9 +126,9 @@ const DashboardLayout = () => {
         showLoader();
         const { role, profile, ytLink } = await checkUserRole({ uid });
         setRole(role);
-        
-        if(role === "investor"){
-          const {favourites} =  await checkUserRole({uid})
+
+        if (role === "investor") {
+          const { favourites } = await checkUserRole({ uid })
           setFavourite(favourites)
         }
 
@@ -272,7 +273,7 @@ const DashboardLayout = () => {
   }
 
 
-  const handleAddToFavorite = async() => {
+  const handleAddToFavorite = async () => {
     console.log("function called")
     try {
       showLoader()
@@ -281,7 +282,7 @@ const DashboardLayout = () => {
       setLiked(!liked)
     } catch (err) {
       console.error("Failed to add favourite", err);
-    }finally{
+    } finally {
       hideLoader()
     }
   }

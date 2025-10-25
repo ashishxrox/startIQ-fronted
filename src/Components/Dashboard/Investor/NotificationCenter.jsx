@@ -1,32 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const notifications = [
-  {
-    id: 1,
-    startupName: "FinTrack",
-    message: "Your portfolio startup FinTrack has successfully raised Series A funding.",
-    time: "2h ago",
-  },
-  {
-    id: 2,
-    startupName: "EcoDrive",
-    message: "EcoDrive reached 1000 electric vehicles sold this month.",
-    time: "5h ago",
-  },
-  {
-    id: 3,
-    startupName: "HealthMate",
-    message: "HealthMate partnered with Apollo Hospitals to expand telemedicine reach.",
-    time: "1d ago",
-  },
-  {
-    id: 4,
-    startupName: "Mate",
-    message: "HealthMate partnered with Apollo Hospitals to expand telemedicine reach.",
-    time: "1d ago",
-  },
-];
 
 const NotificationItem = ({ notification }) => (
   <motion.div
@@ -47,7 +21,7 @@ const NotificationItem = ({ notification }) => (
   </motion.div>
 );
 
-const NotificationCenter = () => {
+const NotificationCenter = ({notifications}) => {
   return (
     <div className="md:w-full bg-white rounded-2xl transition-shadow flex flex-col h-[400px]">
       <div className="w-full h-auto flex justify-between items-center flex-row">

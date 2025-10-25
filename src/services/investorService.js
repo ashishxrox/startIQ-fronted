@@ -50,3 +50,35 @@ export const fetchDealNotes = async (investorID) => {
 };
 
 
+/**
+ * Fetch investor profile by UID
+ * @param {string} investorID
+ * @returns {Promise<Object>} investor profile
+ */
+export const fetchInvestorProfile = async (investorID) => {
+  try {
+    const res = await axios.get(`${API_BASE}/investor/${investorID}`);
+    return res.data;
+  } catch (err) {
+    console.error("❌ Error fetching investor profile:", err);
+    throw err;
+  }
+};
+
+
+/**
+ * Fetch notifications for an investor
+ * @param {string} investorID
+ * @returns {Promise<Array>} notifications array
+ */
+export const fetchInvestorNotifications = async (investorID) => {
+  try {
+    const res = await axios.get(`${API_BASE}/investor/notifications/${investorID}`);
+    return res.data; // array of notifications
+  } catch (err) {
+    console.error("❌ Error fetching notifications:", err);
+    throw err;
+  }
+};
+
+

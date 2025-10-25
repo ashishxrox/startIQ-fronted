@@ -82,3 +82,46 @@ const updates = [
   { startupName: "EcoDrive", verdict: "consider", dateGenerated: "Oct 20, 2025" },
   { startupName: "HealthMate", verdict: "do_not_invest", dateGenerated: "Oct 19, 2025" },
 ];
+
+
+
+  const investorData = {
+    investorName: "Rajiv Mehta",
+    contactNumber: "+91 98765 43210",
+    email: "rajiv.mehta@example.com",
+    individualAngelInvestor: "Individual Angel Investor",
+    investmentIdeology:
+      "I focus on early-stage tech startups with strong founding teams and innovative products. I believe in hands-on mentoring alongside capital support",
+    linkedin: "https://linkedin.com/in/rajivmehta",
+    location: "Mumbai, India",
+    preferredSectors: "Fintech, AI & ML, Mobility, HealthTech",
+    ticketSizeRange: "₹25 Lakhs – ₹1 Crore",
+  };
+
+
+  const notifications = [
+  {
+    id: 1,
+    startupName: "FinTrack",
+    message: "Your portfolio startup FinTrack has successfully raised Series A funding.",
+    time: "2h ago",
+  },
+  {
+    id: 2,
+    startupName: "EcoDrive",
+    message: "EcoDrive reached 1000 electric vehicles sold this month.",
+    time: "5h ago",
+  },
+  {
+    id: 3,
+    startupName: "HealthMate",
+    message: "HealthMate partnered with Apollo Hospitals to expand telemedicine reach.",
+    time: "1d ago",
+  },
+  {
+    id: 4,
+    startupName: "Mate",
+    message: "HealthMate partnered with Apollo Hospitals to expand telemedicine reach.",
+    time: "1d ago",
+  },
+];

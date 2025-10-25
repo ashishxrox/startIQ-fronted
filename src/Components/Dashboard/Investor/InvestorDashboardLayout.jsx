@@ -5,6 +5,8 @@ import { useToast } from "../../../context/ContextToast";
 import { checkUserRole } from "../../../services/userService";
 import { fetchFavouriteStartups } from "../../../services/investorService";
 import { fetchDealNotes } from "../../../services/investorService";
+import { fetchInvestorProfile } from "../../../services/investorService";
+import { fetchInvestorNotifications } from "../../../services/investorService";
 import BackButton from "../../Utils/BackButton";
 
 import InvestorOverviewCard from "./InvestorOverviewCard";
@@ -24,19 +26,8 @@ const InvestorDashboardLayout = () => {
   const { showToast } = useToast();
   const [favourites, setFavourites] = useState([]);
   const [dealNotes, setDealNotes] = useState([])
-
-  const investorData = {
-    investorName: "Rajiv Mehta",
-    contactNumber: "+91 98765 43210",
-    email: "rajiv.mehta@example.com",
-    individualAngelInvestor: "Individual Angel Investor",
-    investmentIdeology:
-      "I focus on early-stage tech startups with strong founding teams and innovative products. I believe in hands-on mentoring alongside capital support",
-    linkedin: "https://linkedin.com/in/rajivmehta",
-    location: "Mumbai, India",
-    preferredSectors: "Fintech, AI & ML, Mobility, HealthTech",
-    ticketSizeRange: "₹25 Lakhs – ₹1 Crore",
-  };
+  const [investorData, setInvestorData] = useState([])
+  const [notification, setNotification] = useState([])
 
   const recommendedStartups = [
     { name: "FinTrack", sector: "Fintech", stage: "Seed", logoUrl: "https://logo.clearbit.com/figma.com" },
@@ -45,11 +36,6 @@ const InvestorDashboardLayout = () => {
     { name: "EduGrow", sector: "EdTech", stage: "Seed", logoUrl: "https://logo.clearbit.com/figma.com" },
     { name: "Foodify", sector: "FoodTech", stage: "Pre-Series A", logoUrl: "https://logo.clearbit.com/figma.com" },
   ];
-
-
-
-
-
 
   // 🔹 User auth check
   useEffect(() => {
@@ -83,27 +69,36 @@ const InvestorDashboardLayout = () => {
     fetchUserRole();
   }, [navigate, uid]);
 
-  
-  useEffect(() => {
-  const getInvestorData = async () => {
-    try {
-      showLoader(); // show loader before fetching
-      const data = await fetchFavouriteStartups(uid);
-      const notes = await fetchDealNotes(uid)
-      setFavourites(data);
-      setDealNotes(notes)
-    } catch (error) {
-      console.error("Failed to fetch favourite startups:", error);
-      showToast("Failed to load favourites", "error");
-    } finally {
-      hideLoader(); // hide loader in any case
-    }
-  };
 
-  if (uid) {
-    getInvestorData();
-  }
-}, [uid]);
+  useEffect(() => {
+    const fetchInvestorData = async () => {
+      if (!uid) return;
+
+      try {
+        showLoader();
+
+        // Fetch all three APIs in parallel
+        const [favouritesData, dealNotesData, investorProfileData, notification] = await Promise.all([
+          fetchFavouriteStartups(uid),
+          fetchDealNotes(uid),
+          fetchInvestorProfile(uid),
+          fetchInvestorNotifications(uid)
+        ]);
+
+        setFavourites(favouritesData);
+        setDealNotes(dealNotesData);
+        setInvestorData(investorProfileData);
+        setNotification(notification)
+      } catch (error) {
+        console.error("Failed to fetch investor data:", error);
+        showToast("Failed to load data", "error");
+      } finally {
+        hideLoader();
+      }
+    };
+
+    fetchInvestorData();
+  }, [uid]);
 
   return (
     <div className="min-h-screen bg-gray-50 px-8 py-10">
@@ -124,12 +119,12 @@ const InvestorDashboardLayout = () => {
 
         {/* Column 2 - 30% */}
         <div className="md:w-[30%] bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
-          <NotificationCenter />
+          <NotificationCenter notifications={notification}/>
         </div>
 
         {/* Column 3 - 30% */}
         <div className="md:w-[30%] bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
-          <CoPilotColumn/>
+          <CoPilotColumn />
         </div>
       </div>
 

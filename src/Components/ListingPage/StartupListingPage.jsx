@@ -149,7 +149,7 @@ const StartupListingPage = () => {
         <h2 className="text-3xl font-bold text-gray-800 ">
           🚀 Startup Listings
         </h2>
-        {<button className="btn btn-secondary flex justify-center items-center"
+        {!aiLoading && <button className="btn btn-secondary flex justify-center items-center"
           onClick={() => {
             navigate('/dashboard/investor')
           }}

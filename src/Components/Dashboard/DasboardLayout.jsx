@@ -15,7 +15,7 @@ import { checkUserRole } from "../../services/userService";
 import { checkDocuments } from "../../services/documentService"; // ✅ import
 import { analyseStartupWithAI } from "../../services/aiService"; // ✅ new import
 import { generateDealNote } from "../../services/investorAiService";
-import { addFavouriteStartup } from "../../services/investorService";
+import { addFavouriteStartup, fetchDealNotes } from "../../services/investorService";
 import BackButton from "../Utils/BackButton";
 import { useLoader } from "../../context/LoaderContext";
 import { useToast } from "../../context/ContextToast";
@@ -105,7 +105,8 @@ const DashboardLayout = () => {
   const [greenFlags, setGreenFlags] = useState([]);
   const [createdAt, setCreatedAt] = useState(null)
   const [aiLoading, setAiLoading] = useState(false);
-  const [dealNote, setDealNote] = useState(null)
+  const [dealNote, setDealNote] = useState(null);
+  const [canCreateMoreNotes, setCanCreateMoreNotes] = useState(null)
 
 
   useEffect(() => {
@@ -129,7 +130,9 @@ const DashboardLayout = () => {
 
         if (role === "investor") {
           const { favourites } = await checkUserRole({ uid })
+          const dealNoteData = await fetchDealNotes(uid)
           setFavourite(favourites)
+          setCanCreateMoreNotes(dealNoteData.canCreateMore)
         }
 
         if (role === "investor" && urlUid) {
@@ -266,6 +269,8 @@ const DashboardLayout = () => {
 
     } catch (error) {
       console.error(error);
+      setDealNoteOpen(false)
+      showToast("Deal not could not be generated!", "error")
       return [];
     } finally {
       setAiLoading(false)
@@ -294,17 +299,23 @@ const DashboardLayout = () => {
       {role === "investor" && <BackButton />}
       {role === "investor" && (
         <div className="flex items-center gap-4 mb-4 relative left-[5%]">
-          {/* <BackButton /> */}
-          <button
-            onClick={() => {
-
-              handleViewDealNote()
-
-            }}
-            className="btn btn-primary transition cursor-pointer"
-          >
-            View Deal Note
-          </button>
+          {canCreateMoreNotes && (
+            <button
+              onClick={handleViewDealNote}
+              disabled={aiLoading}
+              className={`btn btn-primary transition cursor-pointer ${aiLoading
+                  ? "opacity-50 cursor-not-allowed bg-gray-400 hover:bg-gray-400"
+                  : "hover:scale-[1.02]"
+                }`}
+              style={{
+                pointerEvents: aiLoading ? "none" : "auto",
+                transform: aiLoading ? "none" : "scale(1)",
+                transition: "all 0.2s ease-in-out",
+              }}
+            >
+              {aiLoading ? "Loading..." : "View Deal Note"}
+            </button>
+          )}
         </div>
       )}
       {role === "investor" && <LikeButton defaultLiked={liked} onToggle={handleAddToFavorite} />}

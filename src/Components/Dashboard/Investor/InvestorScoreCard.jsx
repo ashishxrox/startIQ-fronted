@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
+
+
 const getColor = (score) => {
   if (score < 40) return "#FF6A6A"; // Red
   if (score < 70) return "#FFD500"; // Yellow
   return "#1DB233"; // Green
 };
+
 
 const InvestorScoreCard = ({ score = 0 }) => {
   const [animatedScore, setAnimatedScore] = useState(0);

@@ -7,6 +7,7 @@ import { fetchFavouriteStartups } from "../../../services/investorService";
 import { fetchDealNotes } from "../../../services/investorService";
 import { fetchInvestorProfile } from "../../../services/investorService";
 import { fetchInvestorNotifications } from "../../../services/investorService";
+import { analyseInvestorWithAI } from "../../../services/investorAiService";
 import BackButton from "../../Utils/BackButton";
 
 import InvestorOverviewCard from "./InvestorOverviewCard";
@@ -16,6 +17,7 @@ import FavouritesRow from "./FavouritesRow";
 import DealNotesRow from "./DealNoteRow";
 import StartIQCoPilotCard from "./StartIQCoPilotCard";
 import CoPilotColumn from "./CoPilotColumn";
+
 
 const InvestorDashboardLayout = () => {
   const navigate = useNavigate()
@@ -28,6 +30,12 @@ const InvestorDashboardLayout = () => {
   const [dealNotes, setDealNotes] = useState([])
   const [investorData, setInvestorData] = useState([])
   const [notification, setNotification] = useState([])
+  const [score, setScore] = useState(0)
+  const [canCreateMoreNotes,setCanCreateMoreNotes] = useState(null)
+  const [activeDealNoteCount,setActiveDealNoteCount] = useState(null)
+  const [remainingNotes,setRemainingNotes] = useState(null)
+  const [daysUntilReset,setDaysUntilReset] = useState(null)
+
 
   const recommendedStartups = [
     { name: "FinTrack", sector: "Fintech", stage: "Seed", logoUrl: "https://logo.clearbit.com/figma.com" },
@@ -70,35 +78,65 @@ const InvestorDashboardLayout = () => {
   }, [navigate, uid]);
 
 
+useEffect(() => {
+  const fetchInvestorData = async () => {
+    if (!uid) return;
+
+    try {
+      showLoader();
+
+      // ✅ Fetch all data in parallel
+      const [
+        favouritesData,
+        dealNotesResponse,
+        investorProfileData,
+        notificationData,
+        aiAnalysisData
+      ] = await Promise.all([
+        fetchFavouriteStartups(uid),
+        fetchDealNotes(uid),
+        fetchInvestorProfile(uid),
+        fetchInvestorNotifications(uid),
+        analyseInvestorWithAI(uid)
+      ]);
+
+      // 🟢 Destructure dealNotes API response
+      const {
+        dealNotes = [],
+        canCreateMore = false,
+        totalActive = 0,
+        remainingNotes = 0,
+        daysUntilReset = 0
+      } = dealNotesResponse || {};
+
+      // 🧠 Update state accordingly
+      setFavourites(favouritesData);
+      setDealNotes(dealNotes);
+      setInvestorData(investorProfileData);
+      setNotification(notificationData);
+      setScore(aiAnalysisData.score);
+
+      // 🧩 Handle deal-note meta values
+      setCanCreateMoreNotes(canCreateMore);
+      setActiveDealNoteCount(totalActive);
+      setRemainingNotes(remainingNotes);
+      setDaysUntilReset(daysUntilReset);
+
+    } catch (error) {
+      console.error("Failed to fetch investor data:", error);
+      showToast("Failed to load data", "error");
+    } finally {
+      hideLoader();
+    }
+  };
+
+  fetchInvestorData();
+}, [uid]);
+
+
   useEffect(() => {
-    const fetchInvestorData = async () => {
-      if (!uid) return;
-
-      try {
-        showLoader();
-
-        // Fetch all three APIs in parallel
-        const [favouritesData, dealNotesData, investorProfileData, notification] = await Promise.all([
-          fetchFavouriteStartups(uid),
-          fetchDealNotes(uid),
-          fetchInvestorProfile(uid),
-          fetchInvestorNotifications(uid)
-        ]);
-
-        setFavourites(favouritesData);
-        setDealNotes(dealNotesData);
-        setInvestorData(investorProfileData);
-        setNotification(notification)
-      } catch (error) {
-        console.error("Failed to fetch investor data:", error);
-        showToast("Failed to load data", "error");
-      } finally {
-        hideLoader();
-      }
-    };
-
-    fetchInvestorData();
-  }, [uid]);
+    console.log(score)
+  }, [score])
 
   return (
     <div className="min-h-screen bg-gray-50 px-8 py-10">
@@ -119,12 +157,12 @@ const InvestorDashboardLayout = () => {
 
         {/* Column 2 - 30% */}
         <div className="md:w-[30%] bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
-          <NotificationCenter notifications={notification}/>
+          <NotificationCenter notifications={notification} />
         </div>
 
         {/* Column 3 - 30% */}
         <div className="md:w-[30%] bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
-          <CoPilotColumn />
+          <CoPilotColumn score={score} />
         </div>
       </div>
 
@@ -140,7 +178,7 @@ const InvestorDashboardLayout = () => {
 
       {/* === Row 3: Full Width === */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
-        <DealNotesRow dealNotes={dealNotes} notesLeft={2} daysLeft={3} />
+        <DealNotesRow dealNotes={dealNotes} notesLeft={remainingNotes} daysLeft={daysUntilReset} />
       </div>
     </div>
   );
